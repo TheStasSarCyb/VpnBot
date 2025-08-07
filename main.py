@@ -1,13 +1,8 @@
-from aiogram import Dispatcher
-from aiogram.types import Message
-from config import bot
 import asyncio
-
-from app.han
+from bot import bot, dp
 
 async def main():
-    dp = Dispatcher()
-    dp.include_router(router)
+    await dp.start_polling(bot)
 
 if __name__ == '__main__':
     asyncio.run(main())
