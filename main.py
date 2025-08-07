@@ -1,11 +1,13 @@
 from aiogram import Dispatcher
+from aiogram.types import Message
 from config import bot
 import asyncio
 
-dp = Dispatcher
+from app.han
 
 async def main():
-    pass
+    dp = Dispatcher()
+    dp.include_router(router)
 
 if __name__ == '__main__':
     asyncio.run(main())
