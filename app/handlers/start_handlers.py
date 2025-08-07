@@ -1,8 +1,10 @@
 from aiogram import Router
+
+from texts import texts
+from keyboards import main
+
 from aiogram.types import Message
 from aiogram.filters import CommandStart, Command
-from texts import texts
-from app.keyboards import main
 
 router = Router()
 
