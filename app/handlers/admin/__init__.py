@@ -1,4 +1,5 @@
-__all__ = ["router"]
+__all__ = ["router",
+           ]
 
 from aiogram import Router
 from app.handlers.admin.start_handlers import router as start_router
