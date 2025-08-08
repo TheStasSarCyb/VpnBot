@@ -1,5 +1,5 @@
 import requests
-from proxy.supporting_methods import ids_to_str, link
+from APIS.proxy.supporting_methods import ids_to_str, link
 
 async def get_price(count: int, period: int, version: int = ''):
     response = await requests.get(link+'getprice?count='+count+'&period='+period)

@@ -1,5 +1,5 @@
 import requests
-from proxy.supporting_methods import ids_to_str, link
+from APIS.proxy.supporting_methods import ids_to_str, link
 
 async def get_price(period: int="30", count: int='1') -> int:
     print(f"[get_price]: getting the price")
