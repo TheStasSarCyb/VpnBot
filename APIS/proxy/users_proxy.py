@@ -1,5 +1,5 @@
 import requests
-from proxy.supporting_methods import ids_to_str, link
+from APIS.proxy.supporting_methods import ids_to_str, link
 
 async def check_proxy(ids):
     str_ids = ids_to_str(ids)

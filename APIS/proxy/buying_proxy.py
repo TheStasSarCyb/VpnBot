@@ -1,5 +1,5 @@
 import requests
-from proxy.supporting_methods import ids_to_str, link
+from APIS.proxy.supporting_methods import ids_to_str, link
 
 async def get_count_of_proxy(country: str = 'us'):
     print(f"[get_count_of_proxy]: getting:\ncountry: {country}")
