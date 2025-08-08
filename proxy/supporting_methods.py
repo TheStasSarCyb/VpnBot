@@ -2,8 +2,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-
-link = "https://px6.link/api/"+'{'+os.getenv("API_KEY_PAY")+'}/'
+link = f"https://px6.link/api/{os.getenv("API_KEY_PAY")}/"
 
 def ids_to_str(ids):
     str_ids = ''
