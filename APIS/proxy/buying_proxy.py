@@ -1,21 +1,22 @@
 import requests
 from APIS.proxy.supporting_methods import ids_to_str, link
 
-async def get_price(period: int="30", count: int='1') -> int:
-    print(f"[get_price]: getting the price")
-    response = requests.get(f"{link}/getprice?count={count}&period={period}&version=3")
+async def get_count_of_proxy(country: str = 'us'):
+    print(f"[get_count_of_proxy]: getting:\ncountry: {country}")
+    response = requests.get(f"{link}/getcount?country={country}&version=3")
     resullt = response.json()
-    proxy_api_price = int(resullt.get("price", None))
-    print(f"[get_price]: status: {response.status_code}\ndata: {resullt}")
-    return proxy_api_price
+    print(f"[get_count_of_proxy]: status: {response.status_code}\ndata: {resullt}")
+    return resullt['count']
 
 async def buying_proxy(count: int, period: int, country="us"):
-    response = requests.get(f"{link}buy?count={count}&period={period}&country={country}")
-    data = response.json()
-    print(response.status_code, data)
+    print(f"[buying_proxy]: buying:\n count: {count}, period: {period}, country: {country}")
+    response = requests.get(f"{link}/buy?count={count}&period={period}&country={country}&version=3")
+    resullt = response.json()
+    print(f"[buying_proxy]: status: {response.status_code}\ndata: {resullt}")
 
 async def prolong_proxy(period: int, ids):
     str_ids = ids_to_str(ids)
-    response = requests.get(f"{link}prolong?period={period}&ids={str_ids}")
-    data = response.json()
-    print(response.status(), data)
+    print(f"[prolonging_proxy]: prolong:/n period: {period}, ids: {str_ids}")
+    response = requests.get(f"{link}/prolong?period={period}&ids={str_ids}")
+    resullt = response.json()
+    print(f"[prolong_proxy]: status: {response.status_code}\ndata: {resullt}")
