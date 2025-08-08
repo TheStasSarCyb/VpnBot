@@ -17,3 +17,8 @@ async def delete_proxy(ids):
     response = await requests.get(f"{link}delete?ids={str_ids}")
     data = response.json()
     print(response.status(), data)
+
+async def get_all_proxy():
+    response = await requests.get(f"{link}getproxy")
+    data = response.json()
+    print(response.status(), data)
