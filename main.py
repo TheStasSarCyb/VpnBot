@@ -1,10 +1,10 @@
 import asyncio
 from bot import bot, dp
-from proxy.buying_proxy import get_price
+from proxy import get_price
 
 async def main():
     await dp.start_polling(bot)
-    get_price(count=5, period=10)
+    await get_price(count=100, period=10)
 
 
 if __name__ == '__main__':

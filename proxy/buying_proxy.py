@@ -1,8 +1,11 @@
 import requests
 from proxy.supporting_methods import ids_to_str, link
 
-async def get_price(count: int, period: int, version: int):
-    response = await requests.get(link+'getprice?count='+count+'&period='+period)
+async def get_price(count: int, period: int):
+    print('start getting the proxy')
+    url = f"{link}/getprice?count={count}&{period}={period}"
+    print(f"url is {url}")
+    response = await requests.get(url)
     data = response.json()
     print(response.status(), data)
 
