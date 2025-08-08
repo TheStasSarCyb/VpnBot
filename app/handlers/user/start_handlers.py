@@ -22,4 +22,5 @@ async def user_wants_to_buy(message: Message):
 
 @router.callback_query(F.data == 'get_prices')
 async def applicate_prices(callback: CallbackQuery):
+    await callback.answer('Показываю цены')
     await callback.message.answer(texts.PRICES_OF_PROXY)
