@@ -8,4 +8,6 @@ USER_FIR_BUYING = "Удачи"
 
 USERS_PROXI = "Ваши прокси:"
 
-PRICES_OF_PROXY = "30 дней - 300 руб \n60 дней - 560 руб \n90 дней - 820 руб"
+PROXY_VIEW_1 = "30 дней - 300 руб"
+PROXY_VIEW_2 = "60 дней - 560 руб"
+PROXY_VIEW_3 = "90 дней - 820 руб"

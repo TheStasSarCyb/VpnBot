@@ -5,3 +5,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 main = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=MAIN_BUTTON_1), KeyboardButton(text=MAIN_BUTTON_2)]], resize_keyboard=True)
 
 get_prices = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Узнать цены', callback_data='get_prices')]])
+
+buy_proxy_1 = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Купить прокси на 30 дней', callback_data='bying_proxy_1')]])
+buy_proxy_2 = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Купить прокси на 60 дней', callback_data='bying_proxy_2')]])
+buy_proxy_3 = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Купить прокси на 90 дней', callback_data='bying_proxy_3')]])
