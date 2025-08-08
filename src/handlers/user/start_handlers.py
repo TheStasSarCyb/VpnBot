@@ -17,8 +17,16 @@ async def user_wants_to_buy(message: Message):
     await message.answer(texts.USER_FIR_BUYING)
 
 @router.message(F.text == texts.MAIN_BUTTON_2)
-async def user_wants_to_buy(message: Message):
+async def users_proxy(message: Message):
     await message.answer(texts.USERS_PROXI)
+
+@router.message(F.text == texts.MAIN_BUTTON_3)
+async def instruction(message: Message):
+    await message.answer(texts.INSTRUCTION)
+
+@router.message(F.text == texts.MAIN_BUTTON_4)
+async def support(message: Message):
+    await message.answer(texts.SUPPORT)
 
 @router.callback_query(F.data == 'get_prices')
 async def applicate_prices(callback: CallbackQuery):
