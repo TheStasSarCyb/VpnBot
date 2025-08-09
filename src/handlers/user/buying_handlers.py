@@ -4,11 +4,14 @@ from aiogram.types import Message, CallbackQuery
 
 from keyboards import keyboards
 from texts import texts
+from APIS.proxy import buying_proxy
 
 router = Router()
 
 @router.callback_query(F.data[:5] == 'bying')
 async def applicate_prices(callback: CallbackQuery):
+    count_of_proxy = await buying_proxy.get_count_of_proxy()
+    await callback.message.answer(f"Доступных прокси: {count_of_proxy}")
     if callback.data[-1] == '1':
         await callback.answer('Вы выбрали "Купить прокси на 30 дней"')
     if callback.data[-1] == '2':

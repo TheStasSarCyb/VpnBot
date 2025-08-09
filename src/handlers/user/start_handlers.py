@@ -4,6 +4,7 @@ from aiogram.types import Message, CallbackQuery
 
 from keyboards import keyboards
 from texts import texts
+from APIS.proxy import buying_proxy
 
 router = Router()
 
@@ -31,6 +32,8 @@ async def support(message: Message):
 @router.callback_query(F.data == 'get_prices')
 async def applicate_prices(callback: CallbackQuery):
     await callback.answer('Показываю цены')
+    count_of_proxy = await buying_proxy.get_count_of_proxy()
+    await callback.message.answer(f"Доступных прокси: {count_of_proxy}")
     await callback.message.answer(texts.PROXY_VIEW_1, reply_markup=keyboards.buy_proxy_1)
     await callback.message.answer(texts.PROXY_VIEW_2, reply_markup=keyboards.buy_proxy_2)
     await callback.message.answer(texts.PROXY_VIEW_3, reply_markup=keyboards.buy_proxy_3)
