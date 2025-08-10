@@ -11,8 +11,10 @@ load_dotenv()
 
 token = os.getenv("FREEKASSA_TOKEN")
 shop_id = os.getenv("SHOP_ID")
+url = os.getenv("CREATE_LINK_URL")
 
-def generate_new_link(amount: int, id_: int):
+def generate_new_link(amount: int, pay_method: str="SBP", get_full: bool=False):
+    id_ = 42 if pay_method=="SBP" else 12
     data = {
     'shopId': shop_id,
     'nonce': int(time.time()),
@@ -31,4 +33,8 @@ def generate_new_link(amount: int, id_: int):
     response = requests.post(url, data=request)
 
     payment_data = response.json()
-    return [str(current_count+1), payment_data]
+    if get_full: # отправка полных данных
+        return payment_data
+    else: # отправка ссылки
+        return payment_data['location']
+    
