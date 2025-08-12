@@ -33,6 +33,7 @@ def generate_new_link(amount: int, pay_method: str="SBP", get_full: bool=False):
     response = requests.post(url, data=request)
 
     payment_data = response.json()
+    print(payment_data)
     if get_full: # отправка полных данных
         return payment_data
     else: # отправка ссылки

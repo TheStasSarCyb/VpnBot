@@ -16,42 +16,48 @@ async def applicate_prices(callback: CallbackQuery, state: FSMContext):
     count_of_proxy = await buying_proxy.get_count_of_proxy() # PROXY
     data = callback.data # CALLBACK
 
-    await callback.message.answer(f"Доступных прокси: {count_of_proxy}") # TEXT PROXY
+    await callback.answer(f"Прокси выбран")
 
     if data == enums.Bying_enum.days_30.value:
-        await callback.answer('Вы выбрали "Купить прокси на 30 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK
+        await callback.message.answer('Вы выбрали "Купить прокси на 30 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK
 
         await state.update_data(limit_time=30) # STATE
         await state.set_state(fsm_lists.Buy.pay_method) # STATE
 
     elif data == enums.Bying_enum.days_60.value:
-        await callback.answer('Вы выбрали "Купить прокси на 60 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK')
+        await callback.message.answer('Вы выбрали "Купить прокси на 60 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK')
 
         await state.update_data(limit_time=60) # STATE
         await state.set_state(fsm_lists.Buy.pay_method) # STATE
 
     elif data == enums.Bying_enum.days_90.value:
-        await callback.answer('Вы выбрали "Купить прокси на 90 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK')
+        await callback.message.answer('Вы выбрали "Купить прокси на 90 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK')
 
         await state.update_data(limit_time=90) # STATE
         await state.set_state(fsm_lists.Buy.pay_method) # STATE
 
-
-@router.callback_query(fsm_lists.Buy.pay_method)
-@router.callback_query(F.data in ["SBP", "CARD"])
+@router.callback_query(fsm_lists.Buy.pay_method, F.data.in_(["SBP", "CARD"]))
 async def pay_method_handler(callback: CallbackQuery, state: FSMContext):
     data = callback.data # CALLBACK
     state_data = await state.get_data() # STATE
+    limit_time = state_data['limit_time'] # STATE
 
+    await callback.answer(f"Метод оплаты выбран")
     if data == enums.Pay_methods.SBP.value:
-        link = generate_new_link(amount=state_data, pay_method=enums.Pay_methods.SBP.value)
-        await callback.answer(f"Метод оплаты: {enums.Pay_methods.SBP.value}\nК оплате: 299RUB\nСсылка для оплаты: {link}\nПосле оплаты, вы получите ip и логин для подключения прокси сервера")
+        link = generate_new_link(amount=limit_time, pay_method=enums.Pay_methods.SBP.value)
+        await callback.message.answer(f"Метод оплаты: {enums.Pay_methods.SBP.value}\nК оплате: 299RUB\nСсылка для оплаты: {link}\nПосле оплаты, вы получите ip и логин для подключения прокси сервера")
     elif data == enums.Pay_methods.CARD.value:
-        link = generate_new_link(amount=sta)
+        link = generate_new_link(amount=limit_time, pay_method=enums.Pay_methods.CARD.value)
+        await callback.message.answer(f"Метод оплаты: {enums.Pay_methods.CARD.value}\nК оплате: 299RUB\nСсылка для оплаты: {link}\nПосле оплаты, вы получите ip и логин для подключения прокси сервера")
 
 @router.message(F.text == texts.MAIN_BUTTON_1)
-async def applicate_prices(message: Message):
-    # await message.answer('Показываю цены')
+async def applicate_prices(message: Message, state: FSMContext):
+    await state.set_state(fsm_lists.Buy.limit_time)
+
+    count_of_proxy = await buying_proxy.get_count_of_proxy()
+
+    await message.answer(f"Доступных прокси: {count_of_proxy}")
+
     await message.answer(texts.PROXY_VIEW_1, reply_markup=keyboards.buy_proxy_1)
     await message.answer(texts.PROXY_VIEW_2, reply_markup=keyboards.buy_proxy_2)
     await message.answer(texts.PROXY_VIEW_3, reply_markup=keyboards.buy_proxy_3)
