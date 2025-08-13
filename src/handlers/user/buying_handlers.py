@@ -7,13 +7,13 @@ from texts import enums
 from APIS.proxy import buying_proxy
 from APIS.freekassa import generate_new_link
 from src.fsm_scripts import fsm_lists, FSMContext
+from database import User, Pay, Proxy, async_session
 
 router = Router()
 
 @router.callback_query(fsm_lists.Buy.limit_time)
 @router.callback_query(F.data.startswith("bying_proxy_"))
 async def applicate_prices(callback: CallbackQuery, state: FSMContext):
-    count_of_proxy = await buying_proxy.get_count_of_proxy() # PROXY
     data = callback.data # CALLBACK
 
     await callback.answer(f"Прокси выбран")
@@ -42,13 +42,28 @@ async def pay_method_handler(callback: CallbackQuery, state: FSMContext):
     state_data = await state.get_data() # STATE
     limit_time = state_data['limit_time'] # STATE
 
+    print(callback.from_user.first_name)
+
     await callback.answer(f"Метод оплаты выбран")
     if data == enums.Pay_methods.SBP.value:
         link = generate_new_link(amount=limit_time, pay_method=enums.Pay_methods.SBP.value)
         await callback.message.answer(f"Метод оплаты: {enums.Pay_methods.SBP.value}\nК оплате: 299RUB\nСсылка для оплаты: {link}\nПосле оплаты, вы получите ip и логин для подключения прокси сервера")
+
+        async with async_session() as session:
+            new_user = User(tg_id=callback.from_user.id, username=callback.from_user.first_name)
+            session.add(new_user)
+            await session.commit()
+            await session.refresh(new_user)
+
     elif data == enums.Pay_methods.CARD.value:
         link = generate_new_link(amount=limit_time, pay_method=enums.Pay_methods.CARD.value)
         await callback.message.answer(f"Метод оплаты: {enums.Pay_methods.CARD.value}\nК оплате: 299RUB\nСсылка для оплаты: {link}\nПосле оплаты, вы получите ip и логин для подключения прокси сервера")
+
+        async with async_session() as session:
+            new_user = User(tg_id=callback.from_user.id, username=callback.from_user.first_name)
+            session.add(new_user)
+            await session.commit()
+            await session.refresh(new_user)
 
 @router.message(F.text == texts.MAIN_BUTTON_1)
 async def applicate_prices(message: Message, state: FSMContext):

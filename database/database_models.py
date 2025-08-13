@@ -3,7 +3,7 @@ from sqlalchemy import String, ForeignKey, BigInteger, Float
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 
-engine = create_async_engine(url='sqlite+aiosqlite:///db.sqlite', echo=True)
+engine = create_async_engine(url='sqlite+aiosqlite:///database/db.sqlite', echo=True)
 
 async_session = async_sessionmaker(bind=engine, expire_on_commit=False)
 
@@ -32,6 +32,15 @@ class Proxy(Base):
     date_end: Mapped[str] = mapped_column(String(256))
     price_from_proxy: Mapped[float] = mapped_column(Float)
     price_from_bot: Mapped[int] = mapped_column()
+
+class Pay(Base):
+    __tablename__ = 'links'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+
+    succes: Mapped[bool] = mapped_column(default=False)
+
 
 async def init_db():
     async with engine.begin() as conn:
