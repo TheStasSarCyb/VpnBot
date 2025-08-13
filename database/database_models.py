@@ -1,4 +1,4 @@
-from sqlalchemy import String, ForeignKey, BigInteger, Float
+from sqlalchemy import String, ForeignKey, BigInteger, Float, text
 
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
@@ -37,11 +37,20 @@ class Pay(Base):
     __tablename__ = 'links'
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    payment_id: Mapped[str] = mapped_column(String(1024))
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
 
+    amount: Mapped[int] = mapped_column(BigInteger)
     succes: Mapped[bool] = mapped_column(default=False)
 
 
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+async def check_tables():
+    async with engine.connect() as conn:
+        result = await conn.execute(text("""
+            SELECT name FROM sqlite_master WHERE type='table';
+        """))
+        print("Таблицы в БД:", result.fetchall())
