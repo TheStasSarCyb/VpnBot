@@ -1,4 +1,4 @@
-from database import async_session, User, Pay
+from database import async_session, User, Pay, Proxy
 from sqlalchemy import select, update
 
 limits = {'300': 30, '560': 60, '820': 90}
@@ -26,5 +26,13 @@ async def payment_succes(payment_id):
 
 async def get_payment(payment_id):
     async with async_session() as session:
-        payment = await session.scalar(select(Pay).where(Pay.payment_id == payment_id))
-        return payment
+        payment_days = await session.scalar(select(Pay.days).where(Pay.payment_id == payment_id))
+        payment_user_id = await session.scalar(select(Pay.user_id).where(Pay.payment_id == payment_id))
+        return [payment_days, payment_user_id]
+    
+async def add_proxy(resp, user_id):
+    async with async_session() as session:
+        for prox in resp['list']:
+                for field in resp["list"][prox]:
+                    print(resp["list"][prox][field])
+        new_proxy = Proxy(user_id=user_id)

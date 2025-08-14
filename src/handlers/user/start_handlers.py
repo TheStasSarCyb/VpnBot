@@ -31,7 +31,6 @@ async def applicate_prices(callback: CallbackQuery, state: FSMContext):
     await state.set_state(fsm_lists.Buy.limit_time)
 
     count_of_proxy = await buying_proxy.get_count_of_proxy()
-    count_of_proxy = 7
 
     await callback.answer('Показываю цены')
     

@@ -26,6 +26,7 @@ class Proxy(Base):
     protocol: Mapped[str] = mapped_column(String(128), default='https') # https или socks5
     ip: Mapped[str] = mapped_column(String(128))
     password: Mapped[str] = mapped_column(String(256))
+    port: Mapped[int] = mapped_column(BigInteger)
 
     nubmer_of_order = mapped_column(BigInteger)
     date: Mapped[str] = mapped_column(String(256))
