@@ -63,9 +63,12 @@ async def applicate_prices(message: Message, state: FSMContext):
     await state.set_state(fsm_lists.Buy.limit_time)
 
     count_of_proxy = await buying_proxy.get_count_of_proxy()
-
-    await message.answer(f"Доступных прокси: {count_of_proxy}")
-
-    await message.answer(texts.PROXY_VIEW_1, reply_markup=keyboards.buy_proxy_1)
-    await message.answer(texts.PROXY_VIEW_2, reply_markup=keyboards.buy_proxy_2)
-    await message.answer(texts.PROXY_VIEW_3, reply_markup=keyboards.buy_proxy_3)
+    count_of_proxy = 7
+    
+    if count_of_proxy < 8:
+        await message.answer(f"Доступных прокси слишком мало, вы пока не можете покупка прокси пока недоступна")
+    else:
+        await message.answer(f"Доступных прокси: {count_of_proxy}")
+        await message.answer(texts.PROXY_VIEW_1, reply_markup=keyboards.buy_proxy_1)
+        await message.answer(texts.PROXY_VIEW_2, reply_markup=keyboards.buy_proxy_2)
+        await message.answer(texts.PROXY_VIEW_3, reply_markup=keyboards.buy_proxy_3)
