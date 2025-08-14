@@ -1,5 +1,5 @@
 from database.database_models import User, Pay, Proxy, init_db, async_session, check_tables
-from database.requests_db import add_user_and_pay, payment_succes
+from database.requests_db import add_user_and_pay, payment_succes, get_payment
 
 __all__ = ["User",
            "Pay",
@@ -8,5 +8,6 @@ __all__ = ["User",
            "async_session",
            "check_tables",
            "add_user_and_pay",
-           "payment_succes"
+           "payment_succes",
+           "get_payment"
            ]

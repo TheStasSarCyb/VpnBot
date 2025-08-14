@@ -38,6 +38,7 @@ class Pay(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     payment_id: Mapped[str] = mapped_column(String(1024))
+    days: Mapped[int] = mapped_column(BigInteger)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
 
     amount: Mapped[int] = mapped_column(BigInteger)
