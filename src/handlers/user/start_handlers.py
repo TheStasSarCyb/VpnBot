@@ -22,7 +22,7 @@ async def users_proxy(message: Message):
     username = message.from_user.username
 
     money = await get_money(tg_id=tg_id, username=username)
-    proxies = await all_users_proxy(username=message.from_user.full_name)
+    proxies = await all_users_proxy(tg_id=tg_id, username=username)
     await message.answer(texts.PROFILE_INFO(money)+proxies)
 
 @router.message(F.text == texts.MAIN_BUTTON_3)

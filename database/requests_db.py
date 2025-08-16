@@ -103,8 +103,8 @@ async def add_money(money: int, user_id: int):
         
         return user
     
-async def all_users_proxy(username):
+async def all_users_proxy(tg_id: int, username: str=None):
     async with async_session() as session:
-        user_id = await session.scalar(select(User.id).where(User.username == username))
-        proxies = await session.scalars(select(Proxy).where(Proxy.user_id == user_id))
-        return proxies
+        user = await get_user(tg_id=tg_id, username=username)
+        proxies = await session.scalars(select(Proxy).where(Proxy.user_id == user.id))
+        return proxies.all()
