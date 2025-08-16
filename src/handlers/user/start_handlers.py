@@ -1,11 +1,13 @@
 from aiogram import Router, F
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart, Command, or_f
 from aiogram.types import Message, CallbackQuery
 
 from keyboards import keyboards
 from texts import texts
 from APIS.proxy import buying_proxy
 from src.fsm_scripts import fsm_lists, FSMContext
+
+from database.requests_db import get_money
 
 router = Router()
 
@@ -14,9 +16,13 @@ async def cmd_start(message: Message):
     await message.answer(texts.START_MESSAGE_1, reply_markup=keyboards.main)
     await message.answer(texts.START_MESSAGE_2, reply_markup=keyboards.get_prices)
 
-@router.message(F.text == texts.MAIN_BUTTON_2)
+@router.message(or_f(F.text == texts.MAIN_BUTTON_2, Command("profile")))
 async def users_proxy(message: Message):
-    await message.answer(texts.USERS_PROXI)
+    tg_id = message.from_user.id
+    username = message.from_user.username
+
+    money = await get_money(tg_id=tg_id, username=username)
+    await message.answer(texts.PROFILE_INFO(money))
 
 @router.message(F.text == texts.MAIN_BUTTON_3)
 async def instruction(message: Message):

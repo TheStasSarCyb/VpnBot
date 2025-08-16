@@ -1,7 +1,7 @@
 import asyncio
 from bot import bot, dp, user_client
 from database import init_db
-from src.handlers.payment_handlers import payment_handler
+from src.handlers.user.payment_handlers import payment_handler
 
 async def main():
     await init_db()

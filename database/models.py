@@ -21,7 +21,8 @@ class User(Base):
 class Proxy(Base):
     __tablename__ = 'proxies'
 
-    id: Mapped[int] = mapped_column()
+    id: Mapped[int] = mapped_column(primary_key=True)
+    id_: Mapped[int] = mapped_column()
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     
     protocol: Mapped[str] = mapped_column(String(128), default='http') # http или socks5

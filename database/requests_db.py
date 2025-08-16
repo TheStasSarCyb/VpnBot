@@ -78,13 +78,16 @@ async def add_new_proxy(data, user_id) -> Proxy:
         date_end = first_proxy_data["date_end"]
         price_from_proxy = data["price"]
 
-        new_proxy = Proxy(user_id=user_id, id=id_, protocol=protocol, ip=ip, password=password, user_auth=user_auth, port=port, date=date, date_end=date_end, price_from_proxy=price_from_proxy)
+        new_proxy = Proxy(user_id=user_id, id_=id_, protocol=protocol, ip=ip, password=password, user_auth=user_auth, port=port, date=date, date_end=date_end, price_from_proxy=price_from_proxy)
         session.add(new_proxy)
         await session.commit()
         await session.refresh(new_proxy)
 
         return new_proxy
 
+async def get_money(user_id: int=None, tg_id: int=None, username: str=None):
+    user = await get_user(user_id=user_id, tg_id=tg_id, username=username)
+    return user.money
 
 async def add_money(money: int, user_id: int):
     async with async_session() as session:
