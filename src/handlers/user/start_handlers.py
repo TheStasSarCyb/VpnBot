@@ -1,6 +1,6 @@
 from aiogram import Router, F
 from aiogram.filters import CommandStart, Command, or_f
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 from keyboards import keyboards
 from texts import texts
@@ -23,7 +23,18 @@ async def users_proxy(message: Message):
 
     money = await get_money(tg_id=tg_id, username=username)
     proxies = await all_users_proxy(tg_id=tg_id, username=username)
-    await message.answer(texts.PROFILE_INFO(money)+" ".join(proxies))
+    
+    await message.answer(texts.PROFILE_INFO(money))
+    
+    for proxy in proxies:
+        str_proxies = "**id прокси: **" + str(proxy.id_)+'\n'
+        str_proxies += '**ip: **' + str(proxy.ip) + '\n'
+        str_proxies += '**port: **' + str(proxy.port) + '\n'
+        str_proxies += '**дата начала прокси: **' + str(proxy.date) + '\n'
+        str_proxies += '**дата истечения прокси: **' + str(proxy.date_end) + '\n'
+        str_proxies += '**пароль: **' + str(proxy.password) + '\n'
+        str_proxies += '**протокол: **' + str(proxy.protocol) +'\n'
+        await message.answer(str_proxies, reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=f"Продлить прокси с id {proxy.id_}", callback_data='prolong_proxy'+str(proxy.id_))]]))
 
 @router.message(F.text == texts.MAIN_BUTTON_3)
 async def instruction(message: Message):
