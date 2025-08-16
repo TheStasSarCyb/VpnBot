@@ -6,7 +6,7 @@ from APIS.proxy.buying_proxy import prolong_proxy
 
 router = Router()
 
-@router.callback_query(str(F.data).startswith('prolong_proxy'))
+@router.callback_query(F.data.startswith('prolong_proxy'))
 async def user_prolong_proxy(callback: CallbackQuery):
 
     calback = callback.data
