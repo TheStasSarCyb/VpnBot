@@ -65,22 +65,26 @@ async def get_link(payment_id):
     
 async def add_new_proxy(data) -> Proxy:
     async with async_session() as session:
-        first_proxy_data = next(iter(data["list"])) # это первый элемент, если что
+        try:
+            id_ = data["id"]
+            protocol = data["type"]
+            ip = data["host"]
+            password = data["pass"]
+            user_auth = data["user"]
+            port = data["port"]
 
-        id_ = first_proxy_data["id"]
-        protocol = first_proxy_data["type"]
-        ip = first_proxy_data["host"]
-        password = first_proxy_data["pass"]
-        user_auth = first_proxy_data["user"]
-        port = first_proxy_data["port"]
+            date = data["date"]
+            date_end = data["date_end"]
+            price_from_proxy = data["price"]
+            country = data['country']
+            user_id = data['user_id']
+        
+            new_proxy = Proxy(user_id=user_id, id_=id_, country=country, protocol=protocol, ip=ip, password=password, user_auth=user_auth, port=port, date=date, date_end=date_end, price_from_proxy=price_from_proxy)
+        except Exception as ex:
+            print(f"Ошибка {ex}")
 
-        date = first_proxy_data["date"]
-        date_end = first_proxy_data["date_end"]
-        price_from_proxy = data["price"]
-        country = data[country]
-        user_id = data['user_id']
+        print(new_proxy)
 
-        new_proxy = Proxy(user_id=user_id, id_=id_, protocol=protocol, ip=ip, password=password, user_auth=user_auth, port=port, date=date, date_end=date_end, price_from_proxy=price_from_proxy)
         session.add(new_proxy)
         await session.commit()
         await session.refresh(new_proxy)

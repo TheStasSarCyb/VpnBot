@@ -56,13 +56,14 @@ async def new_donors_messages(event: types.Message):
 
             # await add_proxy(payment_days, payment_user_id)
             proxy_data = {} 
+            proxy_data['price'] = resp['price']
             proxy_data['user_id'] = payment_user_id
             proxy_data['country'] = resp["country"]
             for prox in resp['list']:
                 for field in resp["list"][prox]:
                     proxy_data[field] = resp["list"][prox][field]
             print(proxy_data)
-            add_new_proxy(proxy_data)
+            await add_new_proxy(proxy_data)
         except Exception as ex:
             print("Не то сообщение")
         
