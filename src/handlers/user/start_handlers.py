@@ -27,14 +27,14 @@ async def users_proxy(message: Message):
     await message.answer(texts.PROFILE_INFO(money))
     
     for proxy in proxies:
-        str_proxies = "**id прокси: **" + str(proxy.id_)+'\n'
-        str_proxies += '**ip: **' + str(proxy.ip) + '\n'
-        str_proxies += '**port: **' + str(proxy.port) + '\n'
-        str_proxies += '**дата начала прокси: **' + str(proxy.date) + '\n'
-        str_proxies += '**дата истечения прокси: **' + str(proxy.date_end) + '\n'
-        str_proxies += '**пароль: **' + str(proxy.password) + '\n'
-        str_proxies += '**протокол: **' + str(proxy.protocol) +'\n'
-        await message.answer(str_proxies, reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=f"Продлить прокси с id {proxy.id_}", callback_data='prolong_proxy'+str(proxy.id_))]]))
+        str_proxies = "<b>id прокси: </b>" + str(proxy.id_)+'\n'
+        str_proxies += '<b>ip: </b>' + str(proxy.ip) + '\n'
+        str_proxies += '<b>port: </b>' + str(proxy.port) + '\n'
+        str_proxies += '<b>дата начала прокси: </b>' + str(proxy.date) + '\n'
+        str_proxies += '<b>дата истечения прокси: </b>' + str(proxy.date_end) + '\n'
+        str_proxies += '<b>пароль: </b>' + str(proxy.password) + '\n'
+        str_proxies += '<b>протокол: </b>' + str(proxy.protocol) +'\n'
+        await message.answer(str_proxies, reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=f"Продлить прокси с id {proxy.id_}", callback_data='prolong_proxy '+str(proxy.id_))]]), parse_mode='HTML')
 
 @router.message(F.text == texts.MAIN_BUTTON_3)
 async def instruction(message: Message):
