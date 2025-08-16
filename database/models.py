@@ -16,25 +16,27 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     tg_id = mapped_column(BigInteger)
     username: Mapped[str] = mapped_column(String(256))
+    money: Mapped[int] = mapped_column(default=0)
 
 class Proxy(Base):
     __tablename__ = 'proxies'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column()
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     
-    protocol: Mapped[str] = mapped_column(String(128), default='https') # https или socks5
+    protocol: Mapped[str] = mapped_column(String(128), default='http') # http или socks5
     ip: Mapped[str] = mapped_column(String(128))
+    user_auth: Mapped[str] = mapped_column(String(128))
     password: Mapped[str] = mapped_column(String(256))
     port: Mapped[int] = mapped_column(BigInteger)
 
-    nubmer_of_order = mapped_column(BigInteger)
+    # nubmer_of_order = mapped_column(BigInteger)
     date: Mapped[str] = mapped_column(String(256))
     date_end: Mapped[str] = mapped_column(String(256))
     price_from_proxy: Mapped[float] = mapped_column(Float)
-    price_from_bot: Mapped[int] = mapped_column()
+    # price_from_bot: Mapped[int] = mapped_column()
 
-class Pay(Base):
+class Link(Base):
     __tablename__ = 'links'
 
     id: Mapped[int] = mapped_column(primary_key=True)

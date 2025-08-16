@@ -7,11 +7,15 @@ from texts import enums
 from APIS.proxy import buying_proxy
 from APIS.freekassa import generate_new_link
 from src.fsm_scripts import fsm_lists, FSMContext
-from database import User, Pay, Proxy, async_session, add_user_and_pay
+from database import User, Link, Proxy, async_session, add_user_and_pay
 from sqlalchemy import select, update, delete, func
 router = Router()
 
-amounts = [300, 560, 820]
+prices = {
+    "30": 300,
+    "60": 560,
+    "90": 820
+}
 
 @router.callback_query(fsm_lists.Buy.limit_time)
 @router.callback_query(F.data.startswith("bying_proxy_"))
@@ -44,7 +48,7 @@ async def pay_method_handler(callback: CallbackQuery, state: FSMContext):
     state_data = await state.get_data() # STATE
     limit_time = state_data['limit_time'] # STATE
 
-    amount = amounts[limit_time//30-1]
+    amount = prices[str(limit_time)]
 
     await callback.answer(f"Метод оплаты выбран")
     if data == enums.Pay_methods.SBP.value:

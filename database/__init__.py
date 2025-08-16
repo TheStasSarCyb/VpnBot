@@ -1,14 +1,14 @@
-from database.database_models import User, Pay, Proxy, init_db, async_session, check_tables
-from database.requests_db import add_user_and_pay, payment_succes, get_payment, add_proxy
+from database.models import User, Link, Proxy, init_db, async_session, check_tables
+from database.requests_db import add_user_and_pay, payment_succes, get_link, add_new_proxy
 
 __all__ = ["User",
-           "Pay",
+           "Link",
            "Proxy",
            "init_db",
            "async_session",
            "check_tables",
            "add_user_and_pay",
            "payment_succes",
-           "get_payment",
-           "add_proxy"
+           "get_link",
+           "add_new_proxy"
            ]

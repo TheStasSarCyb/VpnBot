@@ -2,7 +2,7 @@ from bot import user_client
 from telethon import events, types
 import os
 from dotenv import load_dotenv
-from database import payment_succes, get_payment, add_proxy
+from database import payment_succes, get_link, add_new_proxy
 from APIS.proxy import buying_proxy
 
 load_dotenv()
@@ -36,13 +36,22 @@ resp = {
 
 @user_client.on(events.NewMessage)
 async def new_donors_messages(event: types.Message):
-    if str(event.chat_id) == os.getenv("PAYMENT_CHAT_ID"):
+    handler_text = event.text
+
+    if event.chat_id == os.getenv("PAYMENT_CHAT_ID"):
         try:
-            payment_id = event.text.split()[2]
+            payment_id = handler_text.split()[2]
             await payment_succes(payment_id)
-            payment = await get_payment(payment_id)
-            payment_days = payment[0]
-            payment_user_id = payment[1]
+            payment = await get_link(payment_id)
+            payment_days = payment.days
+            payment_user_id = payment.user_id
+
+            status, purchased_proxy = await buying_proxy.buy_the_proxy(period=int(payment_days))
+            if status == 200:
+                print(f"[new_donors_messages](status 200): is adding...")
+                await add_new_proxy(purchased_proxy, payment_user_id)
+            else:
+                print(f"[new_donors_messages](status {status}): error is {purchased_proxy}") # если что, purchased_proxy покажет контент ошибки, так что всё ок
 
             # await add_proxy(payment_days, payment_user_id)
             for prox in resp['list']:
