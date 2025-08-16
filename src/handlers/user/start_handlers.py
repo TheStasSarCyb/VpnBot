@@ -7,7 +7,7 @@ from texts import texts
 from APIS.proxy import buying_proxy
 from src.fsm_scripts import fsm_lists, FSMContext
 
-from database.requests_db import get_money
+from database.requests_db import get_money, all_users_proxy
 
 router = Router()
 
@@ -22,7 +22,8 @@ async def users_proxy(message: Message):
     username = message.from_user.username
 
     money = await get_money(tg_id=tg_id, username=username)
-    await message.answer(texts.PROFILE_INFO(money))
+    proxies = await all_users_proxy(username=message.from_user.full_name)
+    await message.answer(texts.PROFILE_INFO(money)+proxies)
 
 @router.message(F.text == texts.MAIN_BUTTON_3)
 async def instruction(message: Message):

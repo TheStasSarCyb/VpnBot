@@ -63,7 +63,7 @@ async def get_link(payment_id):
         link = await session.scalar(select(Link).where(Link.payment_id == payment_id))
         return link
     
-async def add_new_proxy(data, user_id) -> Proxy:
+async def add_new_proxy(data) -> Proxy:
     async with async_session() as session:
         first_proxy_data = next(iter(data["list"])) # это первый элемент, если что
 
@@ -77,6 +77,8 @@ async def add_new_proxy(data, user_id) -> Proxy:
         date = first_proxy_data["date"]
         date_end = first_proxy_data["date_end"]
         price_from_proxy = data["price"]
+        country = data[country]
+        user_id = data['user_id']
 
         new_proxy = Proxy(user_id=user_id, id_=id_, protocol=protocol, ip=ip, password=password, user_auth=user_auth, port=port, date=date, date_end=date_end, price_from_proxy=price_from_proxy)
         session.add(new_proxy)
@@ -96,3 +98,9 @@ async def add_money(money: int, user_id: int):
         print(f"[add_money][user_id:{user_id}]: добавлены деньги на аккаунт из-за внутренней ошибки в размере {money} руб.")
         
         return user
+    
+async def all_users_proxy(username):
+    async with async_session() as session:
+        user_id = await session.scalar(select(User.id).where(User.username == username))
+        proxies = await session.scalars(select(Proxy).where(Proxy.user_id == user_id))
+        return proxies

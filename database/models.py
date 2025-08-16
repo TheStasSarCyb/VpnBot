@@ -30,6 +30,7 @@ class Proxy(Base):
     user_auth: Mapped[str] = mapped_column(String(128))
     password: Mapped[str] = mapped_column(String(256))
     port: Mapped[int] = mapped_column(BigInteger)
+    country: Mapped[str] = mapped_column(String(128))
 
     # nubmer_of_order = mapped_column(BigInteger)
     date: Mapped[str] = mapped_column(String(256))
