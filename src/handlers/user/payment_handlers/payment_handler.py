@@ -2,7 +2,7 @@ from bot import user_client
 from telethon import events, types
 import os
 from dotenv import load_dotenv
-from database import payment_succes, get_link, add_new_proxy
+from database import add_money, payment_succes, get_link, add_new_proxy
 from APIS.proxy import buying_proxy
 
 load_dotenv()
@@ -44,17 +44,16 @@ async def new_donors_messages(event: types.Message):
             payment_id = handler_text.split()[2]
             await payment_succes(payment_id)
             payment = await get_link(payment_id)
+            payment_amount = payment.amount
             payment_days = payment.days
             payment_user_id = payment.user_id
-
-            # status, purchased_proxy = await buying_proxy.buy_the_proxy(period=int(payment_days))
-            # if status == 200:
-            #     print(f"[new_donors_messages](status 200): is adding...")
-            #     await add_new_proxy(purchased_proxy, payment_user_id)
-            # else:
-            #     print(f"[new_donors_messages](status {status}): error is {purchased_proxy}") # если что, purchased_proxy покажет контент ошибки, так что всё ок
-
-            # await add_proxy(payment_days, payment_user_id)
+        except Exception as ex:
+            print("Не то сообщение")
+            return
+        
+        result = ["200"]
+        # result = await buying_proxy(1, payment_days)
+        if result[0] == "200":
             proxy_data = {} 
             proxy_data['price'] = resp['price']
             proxy_data['user_id'] = payment_user_id
@@ -64,11 +63,8 @@ async def new_donors_messages(event: types.Message):
                     proxy_data[field] = resp["list"][prox][field]
             print(proxy_data)
             await add_new_proxy(proxy_data)
-        except Exception as ex:
-            print("Не то сообщение")
-        
-        # result = await buying_proxy(1, payment_days)
-        # if result[0] == "200":
+        else:
+            await add_money(user_id=payment_user_id, money=payment_amount)
 
-        # else:
+
 
