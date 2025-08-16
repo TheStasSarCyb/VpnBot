@@ -2,7 +2,8 @@ from bot import user_client
 from telethon import events, types
 import os
 from dotenv import load_dotenv
-from database import add_money, payment_succes, get_link, add_new_proxy
+from src.handlers.user import retutn_money_user 
+from database import add_money, payment_succes, get_link, add_new_proxy, get_user
 from APIS.proxy import buying_proxy
 
 load_dotenv()
@@ -51,7 +52,7 @@ async def new_donors_messages(event: types.Message):
             print("Не то сообщение")
             return
         
-        result = ["200"]
+        result = ["400"]
         # result = await buying_proxy(1, payment_days)
         if result[0] == "200":
             proxy_data = {} 
@@ -65,6 +66,9 @@ async def new_donors_messages(event: types.Message):
             await add_new_proxy(proxy_data)
         else:
             await add_money(user_id=payment_user_id, money=payment_amount)
+            tg_id = await get_user(user_id=payment_user_id)
+            await retutn_money_user(tg_id=tg_id, amount=payment_amount)
+
 
 
 

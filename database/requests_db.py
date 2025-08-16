@@ -108,4 +108,8 @@ async def all_users_proxy(tg_id: int, username: str=None):
         user = await get_user(tg_id=tg_id, username=username)
         proxies = await session.scalars(select(Proxy).where(Proxy.user_id == user.id))
         return proxies.all()
-    
+
+async def get_proxy(user_id, id_):
+    async with async_session() as session:
+        proxy = await session.scalar(select(Proxy).where(Proxy.user_id == user_id).where(Proxy.id_ == id_))
+        return proxy
