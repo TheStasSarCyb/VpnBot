@@ -22,7 +22,7 @@ async def user_wants_prolong(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.answer(f"Выберите время, на которое хотите продлить прокси с id: {proxy_id}", reply_markup=prolong_buttons)
 
-@router.callback_query(F.data.startswith('prolong_time'))
+@router.callback_query(str(F.data).startswith('prolong_time'))
 async def user_prolong_proxy(callback: CallbackQuery, state: FSMContext):
     calback = callback.data
     state_data = await state.get_data() # STATE
