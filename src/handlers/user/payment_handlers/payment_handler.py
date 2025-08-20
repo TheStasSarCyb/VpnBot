@@ -52,7 +52,7 @@ async def new_donors_messages(event: types.Message):
             print("Не то сообщение")
             return
         
-        result = ["400"]
+        result = ["200"]
         # result = await buying_proxy(1, payment_days)
         if result[0] == "200":
             proxy_data = {} 
@@ -66,8 +66,8 @@ async def new_donors_messages(event: types.Message):
             await add_new_proxy(proxy_data)
         else:
             await add_money(user_id=payment_user_id, money=payment_amount)
-            tg_id = await get_user(user_id=payment_user_id)
-            await retutn_money_user(tg_id=tg_id, amount=payment_amount)
+            user = await get_user(user_id=payment_user_id)
+            await retutn_money_user(tg_id=user.tg_id, amount=payment_amount)
 
 
 

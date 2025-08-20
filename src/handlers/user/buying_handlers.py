@@ -68,8 +68,8 @@ async def applicate_prices(message: Message, state: FSMContext):
 
     count_of_proxy = await buying_proxy.get_count_of_proxy()
     
-    if count_of_proxy < 8:
-        await message.answer(f"Доступных прокси слишком мало, вы пока не можете покупка прокси пока недоступна")
+    if count_of_proxy < 3:
+        await message.answer(f"Доступных прокси слишком мало, покупка прокси пока недоступна")
     else:
         await message.answer(f"Доступных прокси: {count_of_proxy}")
         await message.answer(texts.PROXY_VIEW_1, reply_markup=keyboards.buy_proxy_1)

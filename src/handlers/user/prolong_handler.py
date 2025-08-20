@@ -7,6 +7,8 @@ from keyboards.keyboards import prolong_buttons
 
 from database.requests_db import get_money, all_users_proxy, get_user, get_proxy
 from src.fsm_scripts import fsm_lists, FSMContext
+from APIS.freekassa import generate_new_link
+from keyboards import keyboards
 
 
 router = Router()
@@ -22,7 +24,7 @@ async def user_wants_prolong(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.answer(f"Выберите время, на которое хотите продлить прокси с id: {proxy_id}", reply_markup=prolong_buttons)
 
-@router.callback_query(str(F.data).startswith('prolong_time'))
+@router.callback_query(F.data.startswith('prolong_time'))
 async def user_prolong_proxy(callback: CallbackQuery, state: FSMContext):
     calback = callback.data
     state_data = await state.get_data() # STATE
@@ -38,11 +40,14 @@ async def user_prolong_proxy(callback: CallbackQuery, state: FSMContext):
 
     days = int(calback.split()[-1])
     if days == 10:
-        callback.message.answer("Делаю чек")
+        callback.message.answer('Вы выбрали "Продлить прокси на 10 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons)
     elif days == 30:
-        callback.message.answer("Делаю чек")
+        callback.message.answer('Вы выбрали "Продлить прокси на 30 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons)
     elif days == 60:
-        callback.message.answer("Делаю чек")    
+        callback.message.answer('Вы выбрали "Продлить прокси на 60 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons)
     elif days == 90:
-        callback.message.answer("Делаю чек")
+        callback.message.answer('Вы выбрали "Продлить прокси на 90 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons)
 
+@router.callback_query(F.data.startswith('prolong_time'))
+async def user_prolong_proxy_payment(callback: CallbackQuery, state: FSMContext):
+    

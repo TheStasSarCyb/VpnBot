@@ -8,3 +8,5 @@ class Bying_enum(Enum):
 class Pay_methods(Enum):
     SBP = "SBP"
     CARD = "CARD"
+    CARDP = "CARD"
+    SBPP = "SBPP"

@@ -97,7 +97,7 @@ async def get_money(user_id: int=None, tg_id: int=None, username: str=None):
 
 async def add_money(money: int, user_id: int):
     async with async_session() as session:
-        user = await session.execute(update(User).where(User.id == user_id).values(User.money + money))
+        user = await session.execute(update(User).where(User.id == user_id).values(money=User.money + money))
         await session.commit()
         print(f"[add_money][user_id:{user_id}]: добавлены деньги на аккаунт из-за внутренней ошибки в размере {money} руб.")
         
