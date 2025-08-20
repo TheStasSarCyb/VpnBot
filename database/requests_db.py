@@ -40,11 +40,11 @@ async def get_user(user_id: int=None, tg_id: int=None, username: str=None):
                 await session.refresh(new_user)
             return new_user
 
-async def add_user_and_pay(tg_id, id, amount, username):
+async def add_user_and_pay(tg_id, id, amount, username, typ):
     async with async_session() as session:
         user = await get_user(tg_id=tg_id, username=username)
 
-        new_link = Link(payment_id=id, user_id=user.id, amount=amount, days=limits[str(amount)])
+        new_link = Link(payment_id=id, user_id=user.id, amount=amount, days=limits[str(amount)], typ=typ)
         session.add(new_link)
         await session.commit()
         await session.refresh(new_link)

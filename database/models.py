@@ -48,6 +48,7 @@ class Link(Base):
 
     amount: Mapped[int] = mapped_column(BigInteger)
     succes: Mapped[bool] = mapped_column(default=False)
+    typ: Mapped[str] = mapped_column(String(1024))
 
 
 async def init_db():

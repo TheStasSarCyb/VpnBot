@@ -35,11 +35,31 @@ resp = {
  }
 }
 
+async def buying_mes(event: types.Message, payment_amount, payment_days, payment_user_id):
+    result = ["200"]
+    # result = await buying_proxy(1, payment_days)
+    if result[0] == "200":
+        proxy_data = {} 
+        proxy_data['price'] = resp['price']
+        proxy_data['user_id'] = payment_user_id
+        proxy_data['country'] = resp["country"]
+        for prox in resp['list']:
+            for field in resp["list"][prox]:
+                proxy_data[field] = resp["list"][prox][field]
+        print(proxy_data)
+        await add_new_proxy(proxy_data)
+    else:
+        await add_money(user_id=payment_user_id, money=payment_amount)
+        user = await get_user(user_id=payment_user_id)
+        await retutn_money_user(tg_id=user.tg_id, amount=payment_amount)
+
+async def prolong_mes(event: types.Message):
+    pass
+
+
 @user_client.on(events.NewMessage)
 async def new_donors_messages(event: types.Message):
     handler_text = event.text
-    print(handler_text, str(event.chat_id)==os.getenv("PAYMENT_CHAT_ID"))
-
     if str(event.chat_id) == os.getenv("PAYMENT_CHAT_ID"):
         try:
             payment_id = handler_text.split()[2]
@@ -51,24 +71,8 @@ async def new_donors_messages(event: types.Message):
         except Exception as ex:
             print("Не то сообщение")
             return
-        
-        result = ["200"]
-        # result = await buying_proxy(1, payment_days)
-        if result[0] == "200":
-            proxy_data = {} 
-            proxy_data['price'] = resp['price']
-            proxy_data['user_id'] = payment_user_id
-            proxy_data['country'] = resp["country"]
-            for prox in resp['list']:
-                for field in resp["list"][prox]:
-                    proxy_data[field] = resp["list"][prox][field]
-            print(proxy_data)
-            await add_new_proxy(proxy_data)
-        else:
-            await add_money(user_id=payment_user_id, money=payment_amount)
-            user = await get_user(user_id=payment_user_id)
-            await retutn_money_user(tg_id=user.tg_id, amount=payment_amount)
-
-
-
+    link = await get_link(payment_id)
+    if link.typ == 1:
+        await buying_mes(event, payment_amount=payment_amount, payment_days=payment_days, payment_user_id=payment_user_id)
+    # if link.typ == 2:
 

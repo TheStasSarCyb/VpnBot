@@ -13,6 +13,13 @@ from keyboards import keyboards
 
 router = Router()
 
+prices = {
+    "10": 100,
+    "30": 300,
+    "60": 560,
+    "90": 820
+}
+
 @router.callback_query(F.data.startswith('prolong_proxy'))
 async def user_wants_prolong(callback: CallbackQuery, state: FSMContext):
     calback = callback.data
@@ -28,26 +35,42 @@ async def user_wants_prolong(callback: CallbackQuery, state: FSMContext):
 async def user_prolong_proxy(callback: CallbackQuery, state: FSMContext):
     calback = callback.data
     state_data = await state.get_data() # STATE
-    proxy_id = state_data
+    # proxy_id = state_data
 
-    print(proxy_id)
+    # print(proxy_id)
     await callback.answer('Сейчас продлим')
 
-    user = await get_user(tg_id=callback.from_user.id)
-    user_id = user.id
+    # user = await get_user(tg_id=callback.from_user.id)
+    # user_id = user.id
 
-    proxy = await get_proxy(id_=proxy_id, user_id=user_id)
+    # proxy = await get_proxy(id_=proxy_id, user_id=user_id)
 
     days = int(calback.split()[-1])
+    await state.set_state(state_data+' '+days)
     if days == 10:
-        callback.message.answer('Вы выбрали "Продлить прокси на 10 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons)
+        callback.message.answer('Вы выбрали "Продлить прокси на 10 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
     elif days == 30:
-        callback.message.answer('Вы выбрали "Продлить прокси на 30 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons)
+        callback.message.answer('Вы выбрали "Продлить прокси на 30 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
     elif days == 60:
-        callback.message.answer('Вы выбрали "Продлить прокси на 60 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons)
+        callback.message.answer('Вы выбрали "Продлить прокси на 60 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
     elif days == 90:
-        callback.message.answer('Вы выбрали "Продлить прокси на 90 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons)
+        callback.message.answer('Вы выбрали "Продлить прокси на 90 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
 
-@router.callback_query(F.data.startswith('prolong_time'))
+@router.callback_query(F.data.in_(["SBPP", "CARDP"]))
 async def user_prolong_proxy_payment(callback: CallbackQuery, state: FSMContext):
+    meth = str(callback.data)[:-1]
+
+    state_data = await state.get_data() # STATE
+
+    proxy_id = int(str(state_data).split()[-2])
+    days = str(state_data).split()[-1]
+    amount = prices[days]
+
+    link = generate_new_link(amount=amount, pay_method=meth)
+
+    await callback.message.answer(f"Метод оплаты: {meth}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты ваш прокси будет продлён")
+
+
     
+
+    await callback.answer('Оплата')

@@ -59,7 +59,7 @@ async def pay_method_handler(callback: CallbackQuery, state: FSMContext):
         link = generate_new_link(amount=limit_time, pay_method=enums.Pay_methods.CARD.value)
         await callback.message.answer(f"Метод оплаты: {enums.Pay_methods.CARD.value}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты, вы получите ip и логин для подключения прокси сервера")
 
-    await add_user_and_pay(tg_id=callback.from_user.id, id=link.split('/')[-2], amount=amount, username=callback.from_user.full_name)
+    await add_user_and_pay(tg_id=callback.from_user.id, id=link.split('/')[-2], amount=amount, username=callback.from_user.full_name, typ=1)
     
 
 @router.message(F.text == texts.MAIN_BUTTON_1)

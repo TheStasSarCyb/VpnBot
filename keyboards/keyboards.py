@@ -12,7 +12,7 @@ buy_proxy_2 = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='
 buy_proxy_3 = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Купить прокси на 90 дней', callback_data=enums.Bying_enum.days_90.value)]])
 
 pay_method_buttons = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="СБП", callback_data=enums.Pay_methods.SBP.value), InlineKeyboardButton(text="На карту", callback_data=enums.Pay_methods.CARD.value)]])
-pay_method_buttons = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="СБП", callback_data=enums.Pay_methods.SBP.value), InlineKeyboardButton(text="На карту", callback_data=enums.Pay_methods.CARD.value)]])
+pay_prolong_method_buttons = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="СБП", callback_data=enums.Pay_methods.SBPP.value), InlineKeyboardButton(text="На карту", callback_data=enums.Pay_methods.CARDP.value)]])
 
 prolong_buttons = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="10 дней", callback_data='ptolong_time 10'), InlineKeyboardButton(text="30", callback_data='ptolong_time 30')],
                                                          [InlineKeyboardButton(text="60", callback_data='ptolong_time 60'), InlineKeyboardButton(text="90", callback_data='ptolong_time 90')]])
