@@ -5,7 +5,7 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKe
 from APIS.proxy.buying_proxy import prolong_proxy
 from keyboards.keyboards import prolong_buttons
 
-from database.requests_db import get_money, all_users_proxy, get_user, get_proxy
+from database.requests_db import get_money, all_users_proxy, get_user, get_proxy, add_prolong_pay
 from src.fsm_scripts import fsm_lists, FSMContext
 from APIS.freekassa import generate_new_link
 from keyboards import keyboards
@@ -70,7 +70,7 @@ async def user_prolong_proxy_payment(callback: CallbackQuery, state: FSMContext)
 
     await callback.message.answer(f"Метод оплаты: {meth}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты ваш прокси будет продлён")
 
-    await add_prolong_pay()
+    await add_prolong_pay(tg_id=callback.from_user.id, id=link.split('/')[-2], amount=amount, username=callback.from_user.full_name, typ="prolong", id_=proxy_id)
     
 
     await callback.answer('Оплата')

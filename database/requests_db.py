@@ -114,5 +114,17 @@ async def get_proxy(user_id, id_):
         proxy = await session.scalar(select(Proxy).where(Proxy.user_id == user_id).where(Proxy.id_ == id_))
         return proxy
 
-async def add_prolong_pay():
-    pass
+async def add_prolong_pay(tg_id, id, amount, username, typ, id_):
+    async with async_session() as session:
+        user = await get_user(tg_id=tg_id, username=username)
+        new_link = Link(payment_id=id, user_id=user.id, amount=amount, days=limits[str(amount)], typ=typ, proxy_id=id_)
+
+        session.add(new_link)
+        await session.commit()
+        await session.refresh(new_link)
+
+async def prolong_proxy_db(id_, date_end):
+    async with async_session() as session:
+        proxy = await session.execute(update(Proxy).where(Proxy.id_ == id_).values(date_end=date_end))
+        proxy.date_end = date_end
+        await session.commit()
