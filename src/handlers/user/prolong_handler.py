@@ -70,7 +70,7 @@ async def user_prolong_proxy_payment(callback: CallbackQuery, state: FSMContext)
 
     await callback.message.answer(f"Метод оплаты: {meth}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты ваш прокси будет продлён")
 
-
+    await add_prolong_pay()
     
 
     await callback.answer('Оплата')

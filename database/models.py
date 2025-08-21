@@ -45,6 +45,7 @@ class Link(Base):
     payment_id: Mapped[str] = mapped_column(String(1024))
     days: Mapped[int] = mapped_column(BigInteger)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    proxy_id: Mapped[int] = mapped_column(default=-1)
 
     amount: Mapped[int] = mapped_column(BigInteger)
     succes: Mapped[bool] = mapped_column(default=False)

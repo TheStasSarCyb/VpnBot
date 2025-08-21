@@ -35,9 +35,10 @@ resp = {
  }
 }
 
+result = ["200"]
+
 async def buying_mes(event: types.Message, payment_amount, payment_days, payment_user_id):
-    result = ["200"]
-    # result = await buying_proxy(1, payment_days)
+    # result = await buying_proxy.buy_the_proxy(period=payment_days)
     if result[0] == "200":
         proxy_data = {} 
         proxy_data['price'] = resp['price']
@@ -53,8 +54,37 @@ async def buying_mes(event: types.Message, payment_amount, payment_days, payment
         user = await get_user(user_id=payment_user_id)
         await retutn_money_user(tg_id=user.tg_id, amount=payment_amount)
 
-async def prolong_mes(event: types.Message):
-    pass
+resp={
+ "status": "yes",
+ "user_id": "1",
+ "balance": 29,
+ "currency": "RUB",
+ "order_id": 12345,
+ "price": 12.6,
+ "period": 7,
+ "count": 2,
+ "list": {
+   "15": {
+      "id": 15,
+      "date_end": "2016-07-15 06:30:27",
+      "unixtime_end": 1466379159
+   },
+   "16": {
+      "id": 16,
+      "date_end": "2016-07-16 09:31:21",
+      "unixtime_end": 1466379261
+   }
+ }
+}
+
+async def prolong_mes(event: types.Message, payment_days):
+    # result = await buying_proxy.prolong_proxy(payment_days)
+    if result[0] == '200':
+        proxy_data = {} 
+        for prox in resp['list']:
+            for field in resp["list"][prox]:
+                proxy_data[field] = resp["list"][prox][field]
+
 
 
 @user_client.on(events.NewMessage)
@@ -71,8 +101,10 @@ async def new_donors_messages(event: types.Message):
         except Exception as ex:
             print("Не то сообщение")
             return
-    link = await get_link(payment_id)
-    if link.typ == 1:
-        await buying_mes(event, payment_amount=payment_amount, payment_days=payment_days, payment_user_id=payment_user_id)
-    # if link.typ == 2:
+        link = await get_link(payment_id)
+        if link.typ == 1:
+            await buying_mes(event, payment_amount=payment_amount, payment_days=payment_days, payment_user_id=payment_user_id)
+        if link.typ == 2:
+            await prolong_mes(event, payment_days)
+
 

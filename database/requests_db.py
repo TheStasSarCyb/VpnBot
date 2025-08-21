@@ -113,3 +113,6 @@ async def get_proxy(user_id, id_):
     async with async_session() as session:
         proxy = await session.scalar(select(Proxy).where(Proxy.user_id == user_id).where(Proxy.id_ == id_))
         return proxy
+
+async def add_prolong_pay():
+    pass
