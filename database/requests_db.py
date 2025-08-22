@@ -4,12 +4,14 @@ from sqlalchemy import select, update
 from bot.bot import bot
 
 limits = {
+    '100': 10,
     '300': 30, 
     '560': 60, 
     '820': 90
 }
 
 prices = {
+    '10': 100,
     "30": 300,
     "60": 560,
     "90": 820

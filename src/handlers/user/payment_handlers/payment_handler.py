@@ -8,7 +8,7 @@ from APIS.proxy import buying_proxy
 
 load_dotenv()
 
-resp = {
+resp_buy = {
  "status": "yes",
  "user_id": "1",
  "balance": 42.5,
@@ -27,7 +27,7 @@ resp = {
       "pass": "iagn2d",
       "type": "http",
       "date": "2016-06-19 16:32:39",
-      "date_end": "2016-07-12 11:50:41",
+      "date_end": "2025-07-12 11:50:41",
       "unixtime": 1466379159,
       "unixtime_end": 1468349441,
       "active": "1"
@@ -41,12 +41,12 @@ async def buying_mes(event: types.Message, payment_amount, payment_days, payment
     # result = await buying_proxy.buy_the_proxy(period=payment_days)
     if result[0] == "200":
         proxy_data = {} 
-        proxy_data['price'] = resp['price']
+        proxy_data['price'] = resp_buy['price']
         proxy_data['user_id'] = payment_user_id
-        proxy_data['country'] = resp["country"]
-        for prox in resp['list']:
-            for field in resp["list"][prox]:
-                proxy_data[field] = resp["list"][prox][field]
+        proxy_data['country'] = resp_buy["country"]
+        for prox in resp_buy['list']:
+            for field in resp_buy["list"][prox]:
+                proxy_data[field] = resp_buy["list"][prox][field]
         print(proxy_data)
         await add_new_proxy(proxy_data)
     else:
@@ -54,7 +54,7 @@ async def buying_mes(event: types.Message, payment_amount, payment_days, payment
         user = await get_user(user_id=payment_user_id)
         await retutn_money_user(tg_id=user.tg_id, amount=payment_amount)
 
-resp={
+resp_prolong={
  "status": "yes",
  "user_id": "1",
  "balance": 29,
@@ -77,13 +77,13 @@ resp={
  }
 }
 
-async def prolong_mes(event: types.Message, payment_days, payment_user_id, payment_amount):
+async def prolong_mes(event: types.Message, payment_user_id, payment_amount):
     # result = await buying_proxy.prolong_proxy(payment_days)
     if result[0] == '200':
         proxy_data = {} 
-        for prox in resp['list']:
-            for field in resp["list"][prox]:
-                proxy_data[field] = resp["list"][prox][field]
+        for prox in resp_prolong['list']:
+            for field in resp_prolong["list"][prox]:
+                proxy_data[field] = resp_prolong["list"][prox][field]
         print(proxy_data)
         await prolong_proxy_db(proxy_data['id'], proxy_data['data_end'])
     else:
@@ -104,12 +104,12 @@ async def new_donors_messages(event: types.Message):
             payment_days = payment.days
             payment_user_id = payment.user_id
         except Exception as ex:
-            print("Не то сообщение")
+            print(f"Не то сообщение: {ex}")
             return
         link = await get_link(payment_id)
         if link.typ == 'buy':
             await buying_mes(event, payment_amount=payment_amount, payment_days=payment_days, payment_user_id=payment_user_id)
         if link.typ == 'prolong':
-            await prolong_mes(event, payment_days=payment_days, payment_amount=payment_amount, payment_user_id=payment_user_id, payment_id=payment_id)
+            await prolong_mes(event, payment_days=payment_days, payment_amount=payment_amount, payment_user_id=payment_user_id)
 
 
