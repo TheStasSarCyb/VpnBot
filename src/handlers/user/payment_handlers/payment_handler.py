@@ -68,24 +68,20 @@ resp_prolong={
       "id": 15,
       "date_end": "2016-07-15 06:30:27",
       "unixtime_end": 1466379159
-   },
-   "16": {
-      "id": 16,
-      "date_end": "2016-07-16 09:31:21",
-      "unixtime_end": 1466379261
    }
  }
 }
 
-async def prolong_mes(event: types.Message, payment_user_id, payment_amount):
+async def prolong_mes(event: types.Message, payment_days, payment_user_id, payment_amount):
     # result = await buying_proxy.prolong_proxy(payment_days)
     if result[0] == '200':
         proxy_data = {} 
         for prox in resp_prolong['list']:
+            proxy_data['id'] = prox
             for field in resp_prolong["list"][prox]:
                 proxy_data[field] = resp_prolong["list"][prox][field]
         print(proxy_data)
-        await prolong_proxy_db(proxy_data['id'], proxy_data['data_end'])
+        await prolong_proxy_db(proxy_data['id'], proxy_data['date_end'])
     else:
         await add_money(user_id=payment_user_id, money=payment_amount)
         user = await get_user(user_id=payment_user_id)

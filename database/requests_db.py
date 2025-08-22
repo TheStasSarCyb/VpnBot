@@ -127,6 +127,8 @@ async def add_prolong_pay(tg_id, id, amount, username, typ, id_):
 
 async def prolong_proxy_db(id_, date_end):
     async with async_session() as session:
+        print(id_)
         proxy = await session.execute(update(Proxy).where(Proxy.id_ == id_).values(date_end=date_end))
-        proxy.date_end = date_end
         await session.commit()
+        proxy = await session.scalar(select(Proxy).where(Proxy.id_ == id_))
+        print(proxy.user_id)
