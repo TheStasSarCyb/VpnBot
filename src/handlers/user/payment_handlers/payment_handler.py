@@ -2,7 +2,7 @@ from bot import user_client
 from telethon import events, types
 import os
 from dotenv import load_dotenv
-from src.handlers.user import retutn_money_user 
+from src.handlers.user import retutn_money_user, buying_succes, prolong_succes
 from database import add_money, payment_succes, get_link, add_new_proxy, get_user, prolong_proxy_db
 from APIS.proxy import buying_proxy
 
@@ -35,7 +35,7 @@ resp_buy = {
  }
 }
 
-result = ["200"]
+result = ["400"]
 
 async def buying_mes(event: types.Message, payment_amount, payment_days, payment_user_id):
     # result = await buying_proxy.buy_the_proxy(period=payment_days)
@@ -49,6 +49,8 @@ async def buying_mes(event: types.Message, payment_amount, payment_days, payment
                 proxy_data[field] = resp_buy["list"][prox][field]
         print(proxy_data)
         await add_new_proxy(proxy_data)
+        user = await get_user(user_id=payment_user_id)
+        await buying_succes(tg_id=user.tg_id, amount=payment_amount, id=proxy_data["id"])
     else:
         await add_money(user_id=payment_user_id, money=payment_amount)
         user = await get_user(user_id=payment_user_id)
@@ -82,6 +84,8 @@ async def prolong_mes(event: types.Message, payment_days, payment_user_id, payme
                 proxy_data[field] = resp_prolong["list"][prox][field]
         print(proxy_data)
         await prolong_proxy_db(proxy_data['id'], proxy_data['date_end'])
+        user = await get_user(user_id=payment_user_id)
+        await prolong_succes(tg_id=user.tg_id, amount=payment_amount, id=proxy_data["id"])
     else:
         await add_money(user_id=payment_user_id, money=payment_amount)
         user = await get_user(user_id=payment_user_id)

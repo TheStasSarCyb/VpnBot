@@ -105,6 +105,16 @@ async def add_money(money: int, user_id: int):
         
         return user
     
+async def substract_money(money: int, tg_id: int):
+    async with async_session() as session:
+        user = await session.execute(update(User).where(User.tg_id == tg_id).values(money=User.money - money))
+        await session.commit()
+        user = await session.scalar(select(User).where(User.tg_id == tg_id))
+
+        print(f"[add_money][tg_id:{tg_id}]: добавлены деньги на аккаунт из-за внутренней ошибки в размере {money} руб.")
+        
+        return user
+    
 async def all_users_proxy(tg_id: int, username: str=None):
     async with async_session() as session:
         user = await get_user(tg_id=tg_id, username=username)

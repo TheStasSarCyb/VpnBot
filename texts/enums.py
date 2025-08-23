@@ -6,6 +6,8 @@ class Bying_enum(Enum):
     days_90 = "bying_proxy_90"
 
 class Pay_methods(Enum):
+    ACC = 'ACC'
+    ACCP = 'ACCP'
     SBP = "SBP"
     CARD = "CARD"
     CARDP = "CARD"
