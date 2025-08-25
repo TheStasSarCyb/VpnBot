@@ -14,7 +14,7 @@ router = Router()
 
 prices = {
     "30": 300,
-    "60": 560,
+    "1": 10,
     "90": 820
 }
 
@@ -31,10 +31,10 @@ async def applicate_prices(callback: CallbackQuery, state: FSMContext):
         await state.update_data(limit_time=30) # STATE
         await state.set_state(fsm_lists.Buy.pay_method) # STATE
 
-    elif data == enums.Bying_enum.days_60.value:
-        await callback.message.answer('Вы выбрали "Купить прокси на 60 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK')
+    elif str(data) == '1':
+        await callback.message.answer('Вы выбрали "Купить прокси на 1 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK')
 
-        await state.update_data(limit_time=60) # STATE
+        await state.update_data(limit_time=1) # STATE
         await state.set_state(fsm_lists.Buy.pay_method) # STATE
 
     elif data == enums.Bying_enum.days_90.value:
@@ -61,11 +61,11 @@ async def pay_method_handler(callback: CallbackQuery, state: FSMContext):
 
     await callback.answer(f"Метод оплаты выбран")
     if data == enums.Pay_methods.SBP.value:
-        link = generate_new_link(amount=limit_time, pay_method=enums.Pay_methods.SBP.value)
+        link = generate_new_link(amount=amount, pay_method=enums.Pay_methods.SBP.value)
         await callback.message.answer(f"Метод оплаты: {enums.Pay_methods.SBP.value}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты, вы получите ip и логин для подключения прокси сервера")
 
     elif data == enums.Pay_methods.CARD.value:
-        link = generate_new_link(amount=limit_time, pay_method=enums.Pay_methods.CARD.value)
+        link = generate_new_link(amount=amount, pay_method=enums.Pay_methods.CARD.value)
         await callback.message.answer(f"Метод оплаты: {enums.Pay_methods.CARD.value}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты, вы получите ip и логин для подключения прокси сервера")
     await add_user_and_pay(tg_id=callback.from_user.id, id=link.split('/')[-2], amount=amount, username=callback.from_user.full_name, typ="buy")
     
