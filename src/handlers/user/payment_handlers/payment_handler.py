@@ -8,39 +8,13 @@ from APIS.proxy import buying_proxy
 
 load_dotenv()
 
-resp_buy = {
- "status": "yes",
- "user_id": "1",
- "balance": 42.5,
- "currency": "RUB",
- "count": 1,
- "price": 6.3,
- "period": 7,
- "country": "ru",
- "list": {
-   "15": {
-      "id": "15",
-      "ip": "2a00:1838:32:19f:45fb:2640::330",
-      "host": "185.22.134.250",
-      "port": "7330",
-      "user": "5svBNZ",
-      "pass": "iagn2d",
-      "type": "http",
-      "date": "2016-06-19 16:32:39",
-      "date_end": "2025-07-12 11:50:41",
-      "unixtime": 1466379159,
-      "unixtime_end": 1468349441,
-      "active": "1"
-   }
- }
-}
 
-result = ["400"]
 
 async def buying_mes(event: types.Message, payment_amount, payment_days, payment_user_id):
-    # result = await buying_proxy.buy_the_proxy(period=payment_days)
+    result = await buying_proxy.buy_the_proxy(period=payment_days)
     if result[0] == "200":
         proxy_data = {} 
+        resp_buy = result[1]
         proxy_data['price'] = resp_buy['price']
         proxy_data['user_id'] = payment_user_id
         proxy_data['country'] = resp_buy["country"]
@@ -56,27 +30,10 @@ async def buying_mes(event: types.Message, payment_amount, payment_days, payment
         user = await get_user(user_id=payment_user_id)
         await retutn_money_user(tg_id=user.tg_id, amount=payment_amount)
 
-resp_prolong={
- "status": "yes",
- "user_id": "1",
- "balance": 29,
- "currency": "RUB",
- "order_id": 12345,
- "price": 12.6,
- "period": 7,
- "count": 2,
- "list": {
-   "15": {
-      "id": 15,
-      "date_end": "2016-07-15 06:30:27",
-      "unixtime_end": 1466379159
-   }
- }
-}
-
 async def prolong_mes(event: types.Message, payment_days, payment_user_id, payment_amount):
-    # result = await buying_proxy.prolong_proxy(payment_days)
+    result = await buying_proxy.prolong_proxy(payment_days)
     if result[0] == '200':
+        resp_prolong = result[1]
         proxy_data = {} 
         for prox in resp_prolong['list']:
             proxy_data['id'] = prox

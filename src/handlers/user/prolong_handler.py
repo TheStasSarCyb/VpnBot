@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart, Command, or_f
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
-from APIS.proxy.buying_proxy import prolong_proxy
+from APIS.proxy import buying_proxy
 from keyboards.keyboards import prolong_buttons
 
 from database.requests_db import get_money, all_users_proxy, get_user, get_proxy, add_prolong_pay, substract_money, prolong_proxy_db, add_money
@@ -26,7 +26,6 @@ async def user_wants_prolong(callback: CallbackQuery, state: FSMContext):
     calback = callback.data
     proxy_id = str(calback).split()[-1]
 
-    await state.set_data()
 
     await state.update_data(proxy_id=proxy_id)
 
@@ -112,30 +111,11 @@ async def acc_payment(callback: CallbackQuery, state: FSMContext):
     
     await prolong_mes(payment_amount=amount, payment_days=limit_time, payment_user_id=user.id)
 
-resp_prolong={
- "status": "yes",
- "user_id": "1",
- "balance": 29,
- "currency": "RUB",
- "order_id": 12345,
- "price": 12.6,
- "period": 7,
- "count": 2,
- "list": {
-   "15": {
-      "id": 15,
-      "date_end": "2016-07-15 06:30:27",
-      "unixtime_end": 1466379159
-   }
- }
-}
-
-result = ["200"]
-
 async def prolong_mes(payment_days, payment_user_id, payment_amount):
-    # result = await buying_proxy.prolong_proxy(payment_days)
+    result = await buying_proxy.prolong_proxy(payment_days)
     if result[0] == '200':
         proxy_data = {} 
+        resp_prolong = result[1]
         for prox in resp_prolong['list']:
             proxy_data['id'] = prox
             for field in resp_prolong["list"][prox]:

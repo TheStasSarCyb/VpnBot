@@ -82,38 +82,10 @@ async def acc_payment(callback: CallbackQuery, state: FSMContext):
     
     await buying_mes(payment_amount=amount, payment_days=limit_time, payment_user_id=user.id)
 
-resp_buy = {
- "status": "yes",
- "user_id": "1",
- "balance": 42.5,
- "currency": "RUB",
- "count": 1,
- "price": 6.3,
- "period": 7,
- "country": "ru",
- "list": {
-   "15": {
-      "id": "15",
-      "ip": "2a00:1838:32:19f:45fb:2640::330",
-      "host": "185.22.134.250",
-      "port": "7330",
-      "user": "5svBNZ",
-      "pass": "iagn2d",
-      "type": "http",
-      "date": "2016-06-19 16:32:39",
-      "date_end": "2025-07-12 11:50:41",
-      "unixtime": 1466379159,
-      "unixtime_end": 1468349441,
-      "active": "1"
-   }
- }
-}
-
-result = ['200']
-
 async def buying_mes(payment_amount, payment_days, payment_user_id):
-    # result = await buying_proxy.buy_the_proxy(period=payment_days)
+    result = await buying_proxy.buy_the_proxy(period=payment_days)
     if result[0] == "200":
+        resp_buy = result[1]
         proxy_data = {} 
         proxy_data['price'] = resp_buy['price']
         proxy_data['user_id'] = payment_user_id
@@ -136,7 +108,7 @@ async def applicate_prices(message: Message, state: FSMContext):
 
     count_of_proxy = await buying_proxy.get_count_of_proxy()
     
-    if count_of_proxy < 3:
+    if count_of_proxy < 8:
         await message.answer(f"Доступных прокси слишком мало, покупка прокси пока недоступна")
     else:
         await message.answer(f"Доступных прокси: {count_of_proxy}")
