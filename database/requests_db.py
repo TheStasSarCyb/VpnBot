@@ -142,3 +142,4 @@ async def prolong_proxy_db(id_, date_end):
         await session.commit()
         proxy = await session.scalar(select(Proxy).where(Proxy.id_ == id_))
         print(proxy.user_id)
+        return proxy

@@ -12,7 +12,7 @@ load_dotenv()
 
 async def buying_mes(event: types.Message, payment_amount, payment_days, payment_user_id):
     result = await buying_proxy.buy_the_proxy(period=payment_days)
-    if result[0] == "200":
+    if result[0] == 200:
         proxy_data = {} 
         resp_buy = result[1]
         proxy_data['price'] = resp_buy['price']
@@ -22,9 +22,9 @@ async def buying_mes(event: types.Message, payment_amount, payment_days, payment
             for field in resp_buy["list"][prox]:
                 proxy_data[field] = resp_buy["list"][prox][field]
         print(proxy_data)
-        await add_new_proxy(proxy_data)
+        proxy = await add_new_proxy(proxy_data)
         user = await get_user(user_id=payment_user_id)
-        await buying_succes(tg_id=user.tg_id, amount=payment_amount, id=proxy_data["id"])
+        await buying_succes(tg_id=user.tg_id, amount=payment_amount, id=proxy_data["id"], proxy_data=proxy)
     else:
         await add_money(user_id=payment_user_id, money=payment_amount)
         user = await get_user(user_id=payment_user_id)
@@ -32,7 +32,7 @@ async def buying_mes(event: types.Message, payment_amount, payment_days, payment
 
 async def prolong_mes(event: types.Message, payment_days, payment_user_id, payment_amount):
     result = await buying_proxy.prolong_proxy(payment_days)
-    if result[0] == '200':
+    if result[0] == 200:
         resp_prolong = result[1]
         proxy_data = {} 
         for prox in resp_prolong['list']:
@@ -40,9 +40,9 @@ async def prolong_mes(event: types.Message, payment_days, payment_user_id, payme
             for field in resp_prolong["list"][prox]:
                 proxy_data[field] = resp_prolong["list"][prox][field]
         print(proxy_data)
-        await prolong_proxy_db(proxy_data['id'], proxy_data['date_end'])
+        proxy = await prolong_proxy_db(proxy_data['id'], proxy_data['date_end'])
         user = await get_user(user_id=payment_user_id)
-        await prolong_succes(tg_id=user.tg_id, amount=payment_amount, id=proxy_data["id"])
+        await prolong_succes(tg_id=user.tg_id, amount=payment_amount, id=proxy_data["id"], proxy_data=proxy)
     else:
         await add_money(user_id=payment_user_id, money=payment_amount)
         user = await get_user(user_id=payment_user_id)
@@ -55,6 +55,7 @@ async def new_donors_messages(event: types.Message):
     if str(event.chat_id) == os.getenv("PAYMENT_CHAT_ID"):
         try:
             payment_id = handler_text.split()[2]
+            #if the payment actually succes? 
             await payment_succes(payment_id)
             payment = await get_link(payment_id)
             payment_amount = payment.amount

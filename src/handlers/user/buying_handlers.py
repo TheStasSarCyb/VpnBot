@@ -10,15 +10,17 @@ from src.fsm_scripts import fsm_lists, FSMContext
 from database import User, Link, Proxy, async_session, add_user_and_pay, get_user, substract_money, add_new_proxy, add_money
 from sqlalchemy import select, update, delete, func
 from src.handlers.user.users_notify import retutn_money_user, buying_succes
+from src.handlers.deleting_messages import add, clear
 router = Router()
 
 prices = {
     "30": 300,
-    "1": 10,
+    "60": 560,
     "90": 820
 }
 
-@router.callback_query(fsm_lists.Buy.limit_time)
+
+
 @router.callback_query(F.data.startswith("bying_proxy_"))
 async def applicate_prices(callback: CallbackQuery, state: FSMContext):
     data = callback.data # CALLBACK
@@ -31,10 +33,10 @@ async def applicate_prices(callback: CallbackQuery, state: FSMContext):
         await state.update_data(limit_time=30) # STATE
         await state.set_state(fsm_lists.Buy.pay_method) # STATE
 
-    elif str(data) == '1':
-        await callback.message.answer('Вы выбрали "Купить прокси на 1 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK')
+    elif data == enums.Bying_enum.days_60.value:
+        await callback.message.answer('Вы выбрали "Купить прокси на 7 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK')
 
-        await state.update_data(limit_time=1) # STATE
+        await state.update_data(limit_time=7) # STATE
         await state.set_state(fsm_lists.Buy.pay_method) # STATE
 
     elif data == enums.Bying_enum.days_90.value:
@@ -57,7 +59,10 @@ async def pay_method_handler(callback: CallbackQuery, state: FSMContext):
         user = await get_user(tg_id=callback.from_user.id)
         if user.money >= amount:
             await callback.message.answer(f"У вас {user.money}RUB\nМожно оплатить прокси, списав с баланса\nСписать {amount}RUB?", reply_markup=keyboards.account_money_pay)
-            return
+        else:
+            await callback.message.answer(f"У вас на балансе недостаточно средств")
+        return
+        
 
     await callback.answer(f"Метод оплаты выбран")
     if data == enums.Pay_methods.SBP.value:
@@ -71,7 +76,8 @@ async def pay_method_handler(callback: CallbackQuery, state: FSMContext):
     
 @router.callback_query(F.data.startswith('bonuses'))
 async def acc_payment(callback: CallbackQuery, state: FSMContext):
-    await callback.answer("Оплата прошла")
+    await callback.answer("Оплата проходит")
+    await callback.message.answer("Ожидайте")
 
     state_data = await state.get_data() # STATE
     limit_time = state_data['limit_time'] # STATE
@@ -80,11 +86,13 @@ async def acc_payment(callback: CallbackQuery, state: FSMContext):
 
     user = await substract_money(money=amount, tg_id=callback.from_user.id)
     
-    await buying_mes(payment_amount=amount, payment_days=limit_time, payment_user_id=user.id)
+    await buying_mes(payment_amount=amount, payment_days=str(limit_time), payment_user_id=user.id)
 
 async def buying_mes(payment_amount, payment_days, payment_user_id):
-    result = await buying_proxy.buy_the_proxy(period=payment_days)
-    if result[0] == "200":
+    print(payment_days)
+    result = await buying_proxy.buy_the_proxy(period=int(payment_days))
+    print(result[0], type(result[0]))
+    if result[0] == 200:
         resp_buy = result[1]
         proxy_data = {} 
         proxy_data['price'] = resp_buy['price']
@@ -94,9 +102,9 @@ async def buying_mes(payment_amount, payment_days, payment_user_id):
             for field in resp_buy["list"][prox]:
                 proxy_data[field] = resp_buy["list"][prox][field]
         print(proxy_data)
-        await add_new_proxy(proxy_data)
+        proxy = await add_new_proxy(proxy_data)
         user = await get_user(user_id=payment_user_id)
-        await buying_succes(tg_id=user.tg_id, amount=payment_amount, id=proxy_data["id"])
+        await buying_succes(tg_id=user.tg_id, amount=payment_amount, id=proxy_data["id"], proxy_data=proxy)
     else:
         await add_money(user_id=payment_user_id, money=payment_amount)
         user = await get_user(user_id=payment_user_id)

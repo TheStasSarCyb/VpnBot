@@ -8,8 +8,7 @@ START_MESSAGE_2 = "Чтобы узнать цены нажмите на кноп
 
 USER_FIR_BUYING = "Удачи"
 def PROFILE_INFO(money: int=0, proxies: list=None):
-    return f"""Ваш баланс: {money} руб.
-Ваши прокси: ..."""
+    return f"""Ваш баланс: {money} руб."""
 INSTRUCTION = "Инструкция по установке прокси: "
 SUPPORT = "Если есть какие-то вопросы - пишите сюда: "
 

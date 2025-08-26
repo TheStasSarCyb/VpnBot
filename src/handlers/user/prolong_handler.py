@@ -97,10 +97,14 @@ async def prolong_proxy_acc(callback: CallbackQuery, state: FSMContext):
     user = await get_user(tg_id=callback.from_user.id)
     if user.money >= amount:
         await callback.message.answer(f"У вас {user.money}RUB\nМожно оплатить прокси, списав с баланса\nСписать {amount}RUB?", reply_markup=keyboards.account_money_prlolng)
+    else:
+        await callback.message.answer(f"У вас на балансе недостаточно средств")
+
 
 @router.callback_query(F.data.startswith('prolong_bonuses'))
 async def acc_payment(callback: CallbackQuery, state: FSMContext):
-    await callback.answer("Оплата прошла")
+    await callback.answer("Оплата проходит")
+    await callback.message.answer("Ожидайте")
 
     state_data = await state.get_data() # STATE
     limit_time = state_data['limit_time'] # STATE
@@ -111,9 +115,10 @@ async def acc_payment(callback: CallbackQuery, state: FSMContext):
     
     await prolong_mes(payment_amount=amount, payment_days=limit_time, payment_user_id=user.id)
 
+
 async def prolong_mes(payment_days, payment_user_id, payment_amount):
     result = await buying_proxy.prolong_proxy(payment_days)
-    if result[0] == '200':
+    if result[0] == 200:
         proxy_data = {} 
         resp_prolong = result[1]
         for prox in resp_prolong['list']:
@@ -121,9 +126,9 @@ async def prolong_mes(payment_days, payment_user_id, payment_amount):
             for field in resp_prolong["list"][prox]:
                 proxy_data[field] = resp_prolong["list"][prox][field]
         print(proxy_data)
-        await prolong_proxy_db(proxy_data['id'], proxy_data['date_end'])
+        proxy = await prolong_proxy_db(proxy_data['id'], proxy_data['date_end'])
         user = await get_user(user_id=payment_user_id)
-        await prolong_succes(tg_id=user.tg_id, amount=payment_amount, id=proxy_data["id"])
+        await prolong_succes(tg_id=user.tg_id, amount=payment_amount, id=proxy_data["id"], proxy_data=proxy)
     else:
         await add_money(user_id=payment_user_id, money=payment_amount)
         user = await get_user(user_id=payment_user_id)
