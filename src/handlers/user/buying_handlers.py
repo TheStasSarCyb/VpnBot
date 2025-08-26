@@ -28,22 +28,26 @@ async def applicate_prices(callback: CallbackQuery, state: FSMContext):
     await callback.answer(f"Прокси выбран")
 
     if data == enums.Bying_enum.days_30.value:
-        await callback.message.answer('Вы выбрали "Купить прокси на 30 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK
+        mes = await callback.message.answer('Вы выбрали "Купить прокси на 30 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK
 
         await state.update_data(limit_time=30) # STATE
         await state.set_state(fsm_lists.Buy.pay_method) # STATE
 
     elif data == enums.Bying_enum.days_60.value:
-        await callback.message.answer('Вы выбрали "Купить прокси на 7 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK')
+        mes = await callback.message.answer('Вы выбрали "Купить прокси на 7 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK')
 
         await state.update_data(limit_time=7) # STATE
         await state.set_state(fsm_lists.Buy.pay_method) # STATE
 
     elif data == enums.Bying_enum.days_90.value:
-        await callback.message.answer('Вы выбрали "Купить прокси на 90 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK')
+        mes = await callback.message.answer('Вы выбрали "Купить прокси на 90 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_method_buttons) # TEXT CALLBACK')
 
         await state.update_data(limit_time=90) # STATE
         await state.set_state(fsm_lists.Buy.pay_method) # STATE
+    
+    if mes:
+        await clear(int(callback.from_user.id))
+        add(user_id=int(callback.from_user.id), msg_id=int(mes.message_id))
 
 @router.callback_query(F.data.in_(["ACC", "SBP", "CARD"]))
 async def pay_method_handler(callback: CallbackQuery, state: FSMContext):
@@ -58,26 +62,36 @@ async def pay_method_handler(callback: CallbackQuery, state: FSMContext):
         await callback.answer("Метод оплаты выбран")
         user = await get_user(tg_id=callback.from_user.id)
         if user.money >= amount:
-            await callback.message.answer(f"У вас {user.money}RUB\nМожно оплатить прокси, списав с баланса\nСписать {amount}RUB?", reply_markup=keyboards.account_money_pay)
+            msg = await callback.message.answer(f"У вас {user.money}RUB\nМожно оплатить прокси, списав с баланса\nСписать {amount}RUB?", reply_markup=keyboards.account_money_pay)
+            await clear(int(callback.from_user.id))
+            add(user_id=int(callback.from_user.id), msg_id=int(msg.message_id))
         else:
-            await callback.message.answer(f"У вас на балансе недостаточно средств")
+            msg = await callback.message.answer(f"У вас на балансе недостаточно средств")
+            await clear(int(callback.from_user.id))
+            add(user_id=int(callback.from_user.id), msg_id=int(msg.message_id))
         return
         
 
     await callback.answer(f"Метод оплаты выбран")
     if data == enums.Pay_methods.SBP.value:
         link = generate_new_link(amount=amount, pay_method=enums.Pay_methods.SBP.value)
-        await callback.message.answer(f"Метод оплаты: {enums.Pay_methods.SBP.value}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты, вы получите ip и логин для подключения прокси сервера")
+        mes = await callback.message.answer(f"Метод оплаты: {enums.Pay_methods.SBP.value}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты, вы получите ip и логин для подключения прокси сервера")
 
     elif data == enums.Pay_methods.CARD.value:
         link = generate_new_link(amount=amount, pay_method=enums.Pay_methods.CARD.value)
-        await callback.message.answer(f"Метод оплаты: {enums.Pay_methods.CARD.value}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты, вы получите ip и логин для подключения прокси сервера")
+        mes = await callback.message.answer(f"Метод оплаты: {enums.Pay_methods.CARD.value}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты, вы получите ip и логин для подключения прокси сервера")
+    if mes:
+        await clear(int(callback.from_user.id))
+        add(user_id=int(callback.from_user.id), msg_id=int(mes.message_id))
     await add_user_and_pay(tg_id=callback.from_user.id, id=link.split('/')[-2], amount=amount, username=callback.from_user.full_name, typ="buy")
     
 @router.callback_query(F.data.startswith('bonuses'))
 async def acc_payment(callback: CallbackQuery, state: FSMContext):
     await callback.answer("Оплата проходит")
-    await callback.message.answer("Ожидайте")
+    mes = await callback.message.answer("Ожидайте")
+
+    await clear(int(callback.from_user.id))
+    add(user_id=int(callback.from_user.id), msg_id=int(mes.message_id))
 
     state_data = await state.get_data() # STATE
     limit_time = state_data['limit_time'] # STATE
@@ -112,14 +126,22 @@ async def buying_mes(payment_amount, payment_days, payment_user_id):
 
 @router.message(F.text == texts.MAIN_BUTTON_1)
 async def applicate_prices(message: Message, state: FSMContext):
+    add(user_id=message.from_user.id, msg_id=message.message_id)
     await state.set_state(fsm_lists.Buy.limit_time)
 
     count_of_proxy = await buying_proxy.get_count_of_proxy()
     
     if count_of_proxy < 8:
-        await message.answer(f"Доступных прокси слишком мало, покупка прокси пока недоступна")
+        await clear(int(message.from_user.id))
+        mes = await message.answer(f"Доступных прокси слишком мало, покупка прокси пока недоступна")
+        add(user_id=int(message.from_user.id), msg_id=int(mes.message_id))
     else:
-        await message.answer(f"Доступных прокси: {count_of_proxy}")
-        await message.answer(texts.PROXY_VIEW_1, reply_markup=keyboards.buy_proxy_1)
-        await message.answer(texts.PROXY_VIEW_2, reply_markup=keyboards.buy_proxy_2)
-        await message.answer(texts.PROXY_VIEW_3, reply_markup=keyboards.buy_proxy_3)
+        await clear(int(message.from_user.id))
+        mes = await message.answer(f"Доступных прокси: {count_of_proxy}")
+        add(user_id=int(message.from_user.id), msg_id=int(mes.message_id))
+        mes = await message.answer(texts.PROXY_VIEW_1, reply_markup=keyboards.buy_proxy_1)
+        add(user_id=int(message.from_user.id), msg_id=int(mes.message_id))
+        mes = await message.answer(texts.PROXY_VIEW_2, reply_markup=keyboards.buy_proxy_2)
+        add(user_id=int(message.from_user.id), msg_id=int(mes.message_id))
+        mes = await message.answer(texts.PROXY_VIEW_3, reply_markup=keyboards.buy_proxy_3)
+        add(user_id=int(message.from_user.id), msg_id=int(mes.message_id))

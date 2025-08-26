@@ -10,6 +10,7 @@ from src.handlers.user.users_notify import retutn_money_user, buying_succes, pro
 from src.fsm_scripts import fsm_lists, FSMContext
 from APIS.freekassa import generate_new_link
 from keyboards import keyboards
+from src.handlers.deleting_messages import add, clear
 
 
 router = Router()
@@ -33,7 +34,9 @@ async def user_wants_prolong(callback: CallbackQuery, state: FSMContext):
 
     await callback.answer(f"Вы выбрали прокси id: {proxy_id}")
 
-    await callback.message.answer(f"Выберите время, на которое хотите продлить прокси с id: {proxy_id}", reply_markup=prolong_buttons)
+    mes = await callback.message.answer(f"Выберите время, на которое хотите продлить прокси с id: {proxy_id}", reply_markup=prolong_buttons)
+    await clear(int(callback.from_user.id))
+    add(user_id=int(callback.from_user.id), msg_id=int(mes.message_id))
 
 @router.callback_query(F.data.startswith('ptolong_time'))
 async def user_prolong_proxy(callback: CallbackQuery, state: FSMContext):
@@ -55,16 +58,24 @@ async def user_prolong_proxy(callback: CallbackQuery, state: FSMContext):
     await state.set_state("prolong_waiting_duration")
     if days == 10:
         await state.update_data(limit_time=10) # STATE
-        await callback.message.answer('Вы выбрали "Продлить прокси на 10 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
+        mes = await callback.message.answer('Вы выбрали "Продлить прокси на 10 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
+        await clear(int(callback.from_user.id))
+        add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
     elif days == 30:
         await state.update_data(limit_time=30) # STATE
-        await callback.message.answer('Вы выбрали "Продлить прокси на 30 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
+        mes = await callback.message.answer('Вы выбрали "Продлить прокси на 30 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
+        await clear(int(callback.from_user.id))
+        add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
     elif days == 60:
         await state.update_data(limit_time=60) # STATE
-        await callback.message.answer('Вы выбрали "Продлить прокси на 60 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
+        mes = await callback.message.answer('Вы выбрали "Продлить прокси на 60 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
+        await clear(int(callback.from_user.id))
+        add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
     elif days == 90:
         await state.update_data(limit_time=90) # STATE
-        await callback.message.answer('Вы выбрали "Продлить прокси на 90 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
+        mes = await callback.message.answer('Вы выбрали "Продлить прокси на 90 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
+        await clear(int(callback.from_user.id))
+        add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
 
 @router.callback_query(F.data.in_(["SBPP", "CARDP"]))
 async def user_prolong_proxy_payment(callback: CallbackQuery, state: FSMContext):
@@ -78,8 +89,10 @@ async def user_prolong_proxy_payment(callback: CallbackQuery, state: FSMContext)
 
     link = generate_new_link(amount=amount, pay_method=meth)
 
-    await callback.message.answer(f"Метод оплаты: {meth}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты ваш прокси будет продлён")
+    mes = await callback.message.answer(f"Метод оплаты: {meth}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты ваш прокси будет продлён")
 
+    await clear(int(callback.from_user.id))
+    add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
     await add_prolong_pay(tg_id=callback.from_user.id, id=link.split('/')[-2], amount=amount, username=callback.from_user.full_name, typ="prolong", id_=proxy_id)
 
     await callback.answer('Оплата')
@@ -96,15 +109,20 @@ async def prolong_proxy_acc(callback: CallbackQuery, state: FSMContext):
     await callback.answer("Метод оплаты выбран")
     user = await get_user(tg_id=callback.from_user.id)
     if user.money >= amount:
-        await callback.message.answer(f"У вас {user.money}RUB\nМожно оплатить прокси, списав с баланса\nСписать {amount}RUB?", reply_markup=keyboards.account_money_prlolng)
+        mes = await callback.message.answer(f"У вас {user.money}RUB\nМожно оплатить прокси, списав с баланса\nСписать {amount}RUB?", reply_markup=keyboards.account_money_prlolng)
     else:
-        await callback.message.answer(f"У вас на балансе недостаточно средств")
+        mes = await callback.message.answer(f"У вас на балансе недостаточно средств")
+    await clear(int(callback.from_user.id))
+    add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
 
 
 @router.callback_query(F.data.startswith('prolong_bonuses'))
 async def acc_payment(callback: CallbackQuery, state: FSMContext):
     await callback.answer("Оплата проходит")
-    await callback.message.answer("Ожидайте")
+    mes = await callback.message.answer("Ожидайте")
+
+    await clear(int(callback.from_user.id))
+    add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
 
     state_data = await state.get_data() # STATE
     limit_time = state_data['limit_time'] # STATE
@@ -114,7 +132,6 @@ async def acc_payment(callback: CallbackQuery, state: FSMContext):
     user = await substract_money(money=amount, tg_id=callback.from_user.id)
     
     await prolong_mes(payment_amount=amount, payment_days=limit_time, payment_user_id=user.id)
-
 
 async def prolong_mes(payment_days, payment_user_id, payment_amount):
     result = await buying_proxy.prolong_proxy(payment_days)
