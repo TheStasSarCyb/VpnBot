@@ -36,6 +36,7 @@ class Proxy(Base):
     date: Mapped[str] = mapped_column(String(256))
     date_end: Mapped[str] = mapped_column(String(256))
     price_from_proxy: Mapped[float] = mapped_column(Float)
+    ipv: Mapped[int] = mapped_column(default=3)
     # price_from_bot: Mapped[int] = mapped_column()
 
 class Link(Base):
@@ -48,14 +49,31 @@ class Link(Base):
     proxy_id: Mapped[int] = mapped_column(default=-1)
 
     amount: Mapped[int] = mapped_column(BigInteger)
+    amount_with_comission: Mapped[float] = mapped_column(Float, default=0)
     succes: Mapped[bool] = mapped_column(default=False)
     typ: Mapped[str] = mapped_column(String(1024))
 
 
+async def migrate_db():
+    async with engine.connect() as conn:
+        # Проверяем колонки в таблице `proxies`
+        result = await conn.execute(text("PRAGMA table_info(links);"))
+        columns = [row[1] for row in result.fetchall()]  # Имена колонок
+
+        if 'amount_with_comission' not in columns:
+            print("Колонка 'amount_with_comission' не найдена в таблице 'links'. Добавляем...")
+            await conn.execute(
+                text("ALTER TABLE links ADD COLUMN amount_with_comission FLOAT NOT NULL DEFAULT 0.0;")
+            )
+            await conn.commit()
+            print("✅ Колонка 'amount_with_comission' успешно добавлена в таблицу 'proxies'.")
+        else:
+            print("🔍 Колонка 'amount_with_comission' уже существует в таблице 'proxies'.")
+
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        await conn.execute(text("PRAGMA journal_mode=WAL"))
+    await migrate_db()
 
 async def check_tables():
     async with engine.connect() as conn:

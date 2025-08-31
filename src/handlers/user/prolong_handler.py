@@ -4,6 +4,7 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKe
 
 from APIS.proxy import buying_proxy
 from keyboards.keyboards import prolong_buttons
+import logging
 
 from database.requests_db import get_money, all_users_proxy, get_user, get_proxy, add_prolong_pay, substract_money, prolong_proxy_db, add_money
 from src.handlers.user.users_notify import retutn_money_user, buying_succes, prolong_succes
@@ -11,15 +12,24 @@ from src.fsm_scripts import fsm_lists, FSMContext
 from APIS.freekassa import generate_new_link
 from keyboards import keyboards
 from src.handlers.deleting_messages import add, clear
+from database.GG_table_api import make_table_prolong_wrong
+
 
 
 router = Router()
 
-prices = {
-    "10": 100,
+prices_3 = {
+    "7": 90,
     "30": 300,
     "60": 560,
     "90": 820
+}
+
+prices_4 = {
+    '7': 110,
+    '30': 400,
+    '60': 680,
+    '90': 900
 }
 
 @router.callback_query(F.data.startswith('prolong_proxy'))
@@ -27,12 +37,14 @@ async def user_wants_prolong(callback: CallbackQuery, state: FSMContext):
     calback = callback.data
     proxy_id = str(calback).split()[-1]
 
-
     await state.update_data(proxy_id=proxy_id)
 
     await state.set_state("prolong_waiting_duration")
 
     await callback.answer(f"Вы выбрали прокси id: {proxy_id}")
+
+    proxy = await get_proxy(id_=proxy_id)
+
 
     mes = await callback.message.answer(f"Выберите время, на которое хотите продлить прокси с id: {proxy_id}", reply_markup=prolong_buttons)
     await clear(int(callback.from_user.id))
@@ -56,9 +68,9 @@ async def user_prolong_proxy(callback: CallbackQuery, state: FSMContext):
     await state.update_data(proxy_id=proxy_id, days=days)
 
     await state.set_state("prolong_waiting_duration")
-    if days == 10:
-        await state.update_data(limit_time=10) # STATE
-        mes = await callback.message.answer('Вы выбрали "Продлить прокси на 10 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
+    if days == 7:
+        await state.update_data(limit_time=7) # STATE
+        mes = await callback.message.answer('Вы выбрали "Продлить прокси на 7 дней"\nВыберите метод оплаты:', reply_markup=keyboards.pay_prolong_method_buttons)
         await clear(int(callback.from_user.id))
         add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
     elif days == 30:
@@ -84,16 +96,22 @@ async def user_prolong_proxy_payment(callback: CallbackQuery, state: FSMContext)
 
     proxy_id = int(state_data.get("proxy_id"))
     days = state_data.get("days")
-    print(days)
-    amount = prices[str(days)]
+    logging.info(days)
+    prox = await get_proxy(id_=proxy_id)
 
-    link = generate_new_link(amount=amount, pay_method=meth)
+    if prox.ipv == 4:
+        true_amount = prices_4[str(days)]
+    if prox.ipv == 3:
+        true_amount = prices_3[str(days)]
+    user_amount = prices_3[str(days)]
+    logging.info(str(proxy_id)+str(prox.ipv))
+    link = generate_new_link(amount=user_amount, pay_method=meth)
 
-    mes = await callback.message.answer(f"Метод оплаты: {meth}\nК оплате: {amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты ваш прокси будет продлён")
+    mes = await callback.message.answer(f"Метод оплаты: {meth}\nК оплате: {user_amount}RUB\nСсылка для оплаты: {link}\nПосле оплаты ваш прокси будет продлён")
 
     await clear(int(callback.from_user.id))
     add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
-    await add_prolong_pay(tg_id=callback.from_user.id, id=link.split('/')[-2], amount=amount, username=callback.from_user.full_name, typ="prolong", id_=proxy_id)
+    await add_prolong_pay(tg_id=callback.from_user.id, id=link.split('/')[-2], amount=true_amount, username=callback.from_user.full_name, typ="prolong", id_=proxy_id)
 
     await callback.answer('Оплата')
 
@@ -101,11 +119,15 @@ async def user_prolong_proxy_payment(callback: CallbackQuery, state: FSMContext)
 async def prolong_proxy_acc(callback: CallbackQuery, state: FSMContext):
     state_data = await state.get_data() # STATE
 
-    proxy_id = int(state_data.get("proxy_id"))
     days = state_data.get("days")
-    print(days)
-    amount = prices[str(days)]
+    logging.info(days)
+    proxy_id = int(state_data.get("proxy_id"))
+    prox = await get_proxy(id_=proxy_id)
+    logging.info(str(proxy_id)+'\n'+str(prox.ipv))
 
+    amount = prices_3[str(days)]
+
+    logging.info(amount)
     await callback.answer("Метод оплаты выбран")
     user = await get_user(tg_id=callback.from_user.id)
     if user.money >= amount:
@@ -125,16 +147,37 @@ async def acc_payment(callback: CallbackQuery, state: FSMContext):
     add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
 
     state_data = await state.get_data() # STATE
-    limit_time = state_data['limit_time'] # STATE
+    days = state_data.get("days")
+    proxy_id = state_data["proxy_id"]
 
-    amount = prices[str(limit_time)]
+    prox = await get_proxy(id_=proxy_id)
+
+    amount = prices_3[str(days)]
 
     user = await substract_money(money=amount, tg_id=callback.from_user.id)
     
-    await prolong_mes(payment_amount=amount, payment_days=limit_time, payment_user_id=user.id)
+    await prolong_mes(payment_amount=amount, payment_days=days, payment_user_id=user.id, proxy_id=proxy_id)
 
-async def prolong_mes(payment_days, payment_user_id, payment_amount):
-    result = await buying_proxy.prolong_proxy(payment_days)
+# result = [200, {
+#  "status": "yes",
+#  "user_id": "1",
+#  "balance": 29,
+#  "currency": "RUB",
+#  "order_id": 12345,
+#  "price": 12.6,
+#  "period": 7,
+#  "count": 2,
+#  "list": {
+#    "21": {
+#       "id": 21,
+#       "date_end": "2022-07-15 06:30:27",
+#       "unixtime_end": 1466379159
+#    }
+#  }
+# }]
+
+async def prolong_mes(payment_days, payment_user_id, payment_amount, proxy_id):
+    result = await buying_proxy.prolong_proxy(payment_days, id=proxy_id)
     if result[0] == 200:
         proxy_data = {} 
         resp_prolong = result[1]
@@ -142,7 +185,7 @@ async def prolong_mes(payment_days, payment_user_id, payment_amount):
             proxy_data['id'] = prox
             for field in resp_prolong["list"][prox]:
                 proxy_data[field] = resp_prolong["list"][prox][field]
-        print(proxy_data)
+        logging.info(proxy_data)
         proxy = await prolong_proxy_db(proxy_data['id'], proxy_data['date_end'])
         user = await get_user(user_id=payment_user_id)
         await prolong_succes(tg_id=user.tg_id, amount=payment_amount, id=proxy_data["id"], proxy_data=proxy)

@@ -1,5 +1,6 @@
 from database.models import User, Link, Proxy, init_db, async_session, check_tables
-from database.requests_db import add_user_and_pay, payment_succes, get_link, add_new_proxy, all_users_proxy, add_money, get_user, get_proxy, add_prolong_pay, prolong_proxy_db, substract_money
+from database.requests_db import add_user_and_pay, payment_succes, get_link, add_new_proxy, all_users_proxy, add_money, get_user, get_proxy, add_prolong_pay, prolong_proxy_db, substract_money, change, get_all_links
+from database.GG_table_api import append_the_data
 
 __all__ = ["User",
            "Link",
@@ -17,5 +18,8 @@ __all__ = ["User",
            "get_proxy",
            "add_prolong_pay",
            "prolong_proxy_db",
-           "substract_money"
+           "substract_money",
+           "change",
+           "get_all_links",
+           "append_the_data"
            ]

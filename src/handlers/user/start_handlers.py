@@ -1,11 +1,14 @@
+import os
 from aiogram import Router, F
 from aiogram.filters import CommandStart, Command, or_f
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+import logging
 
 from keyboards import keyboards
 from texts import texts
 from APIS.proxy import buying_proxy
 from src.fsm_scripts import fsm_lists, FSMContext
+from aiogram.types import FSInputFile, InputMediaPhoto
 
 from database.requests_db import get_money, all_users_proxy
 from src.handlers.deleting_messages import add, clear
@@ -24,7 +27,6 @@ async def cmd_start(message: Message):
 @router.message(or_f(F.text == texts.MAIN_BUTTON_2, Command("profile")))
 async def users_proxy(message: Message):
 
-
     tg_id = message.from_user.id
     add(user_id=tg_id, msg_id=message.message_id)
     username = message.from_user.username
@@ -40,7 +42,11 @@ async def users_proxy(message: Message):
 
     
     for proxy in proxies:
-        str_proxies = "<b>id прокси: </b>" + str(proxy.id_)+'\n'
+        if proxy.ipv == 4:
+            str_proxies = '<b>Телефон</b>\n'
+        elif proxy.ipv == 3:
+            str_proxies = '<b>ПК</b>\n'
+        str_proxies += "<b>id прокси: </b>" + str(proxy.id_)+'\n'
         str_proxies += '<b>ip: </b>' + str(proxy.ip) + '\n'
         str_proxies += '<b>port: </b>' + str(proxy.port) + '\n'
         str_proxies += '<b>логин: </b>' + str(proxy.user_auth) + '\n'
@@ -56,7 +62,7 @@ async def users_proxy(message: Message):
 async def instruction(message: Message):
     add(user_id=message.from_user.id, msg_id=message.message_id)
     await clear(int(message.from_user.id))
-    mes = await message.answer(texts.INSTRUCTION)
+    mes = await message.answer(texts.INSTRUCTION, reply_markup=keyboards.choose_instruction)
     add(user_id=int(message.from_user.id), msg_id=mes.message_id)
 
 @router.message(F.text == texts.MAIN_BUTTON_4)
@@ -66,6 +72,110 @@ async def support(message: Message):
     mes = await message.answer(texts.SUPPORT)
     add(user_id=int(message.from_user.id), msg_id=mes.message_id)
 
+@router.message(F.text == "ПК")
+async def instruction_PC(message: Message):
+    add(user_id=message.from_user.id, msg_id=message.message_id)
+    await clear(int(message.from_user.id))
+    mes = await message.answer("Инструкция по установке прокси на ПК")
+    add(user_id=int(message.from_user.id), msg_id=mes.message_id)
+
+    # Список путей к изображениям
+    image_paths = [
+        "Images/PC/PC_0.jpg",
+        "Images/PC/PC_1.jpg",
+        "Images/PC/PC_2.jpg",
+        "Images/PC/PC_3.jpg",
+        "Images/PC/PC_4.jpg",
+    ]
+
+    # Проверим, что все файлы существуют
+    valid_images = []
+    for path in image_paths:
+        if os.path.exists(path):
+            valid_images.append(FSInputFile(path))
+        else:
+            logging.error(f"Файл не найден: {path}")
+    
+    # Создаём медиа-группу
+    media = [InputMediaPhoto(media=img) for img in valid_images]
+
+    # Отправляем альбом
+    try:
+        mes = await message.answer_media_group(media=media)#, caption="Инструкция по установке прокси на ПК")
+        for msg in mes:
+            add(user_id=int(message.from_user.id), msg_id=msg.message_id)
+    except Exception as ex:
+        logging.error(f"Не удалось отправить альбом {ex}")
+    
+
+@router.message(F.text == "Андроид")
+async def instruction_ANDROID(message: Message):
+    add(user_id=message.from_user.id, msg_id=message.message_id)
+    await clear(int(message.from_user.id))
+    mes = await message.answer("Инструкция по установке прокси на ПК")
+    add(user_id=int(message.from_user.id), msg_id=mes.message_id)
+
+    # Список путей к изображениям
+    image_paths = [
+        "Images/Android/Android_0.jpg",
+        "Images/Android/Android_1.jpg",
+        "Images/Android/Android_2.jpg",
+        "Images/Android/Android_3.jpg",
+    ]
+
+    # Проверим, что все файлы существуют
+    valid_images = []
+    for path in image_paths:
+        if os.path.exists(path):
+            valid_images.append(FSInputFile(path))
+        else:
+            logging.error(f"Файл не найден: {path}")
+    
+    # Создаём медиа-группу
+    media = [InputMediaPhoto(media=img) for img in valid_images]
+
+    # Отправляем альбом
+    try:
+        mes = await message.answer_media_group(media=media)#, caption="Инструкция по установке прокси на Андроид")
+        for msg in mes:
+            add(user_id=int(message.from_user.id), msg_id=msg.message_id)
+    except Exception as ex:
+        logging.error(f"Не удалось отправить альбом {ex}")
+
+@router.message(F.text == "Айфон")
+async def instruction_IPHONE(message: Message):
+    add(user_id=message.from_user.id, msg_id=message.message_id)
+    await clear(int(message.from_user.id))
+    mes = await message.answer("Инструкция по установке прокси на ПК")
+    add(user_id=int(message.from_user.id), msg_id=mes.message_id)
+
+    # Список путей к изображениям
+    image_paths = [
+        "Images/Iphone/Iphone_0.jpg",
+        "Images/Iphone/Iphone_1.jpg",
+        "Images/Iphone/Iphone_2.jpg",
+        "Images/Iphone/Iphone_3.jpg",
+    ]
+
+    # Проверим, что все файлы существуют
+    valid_images = []
+    for path in image_paths:
+        if os.path.exists(path):
+            valid_images.append(FSInputFile(path))
+        else:
+            logging.error(f"Файл не найден: {path}")
+    
+    # Создаём медиа-группу
+    media = [InputMediaPhoto(media=img) for img in valid_images]
+
+    # Отправляем альбом
+    try:
+        mes = await message.answer_media_group(media=media)#, caption="Инструкция по установке прокси на Айфон")
+        for msg in mes:
+            add(user_id=int(message.from_user.id), msg_id=msg.message_id)
+    except Exception as ex:
+        logging.error(f"Не удалось отправить альбом {ex}")
+
 
 @router.callback_query(F.data == 'get_prices')
 async def applicate_prices(callback: CallbackQuery, state: FSMContext):
@@ -73,31 +183,8 @@ async def applicate_prices(callback: CallbackQuery, state: FSMContext):
 
     count_of_proxy = await buying_proxy.get_count_of_proxy()
 
-    await callback.answer('Показываю цены')
+    await callback.answer('Выберите устройство')
     await clear(int(callback.from_user.id))
-    
-    if count_of_proxy < 8:
-        mes = await callback.message.answer(texts.PROXY_VIEW_1)
-        add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
 
-        mes = await callback.message.answer(texts.PROXY_VIEW_2)
-        add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
-
-        mes = await callback.message.answer(texts.PROXY_VIEW_3)
-        add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
-
-        mes = await callback.message.answer(f"Доступных прокси слишком мало, вы пока не можете покупка прокси пока недоступна")
-        add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
-
-    else:
-        mes = await callback.message.answer(f"Доступных прокси: {count_of_proxy}")
-        add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
-
-        mes = await callback.message.answer(texts.PROXY_VIEW_1, reply_markup=keyboards.buy_proxy_1)
-        add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
-
-        mes = await callback.message.answer(texts.PROXY_VIEW_2, reply_markup=keyboards.buy_proxy_2)
-        add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
-
-        mes = await callback.message.answer(texts.PROXY_VIEW_3, reply_markup=keyboards.buy_proxy_3)
-        add(user_id=int(callback.from_user.id), msg_id=mes.message_id )
+    mes = await callback.message.answer("Для какого устройства вам нужен прокси?", reply_markup=keyboards.choose_device)
+    add(user_id=callback.from_user.id, msg_id=mes.message_id)
